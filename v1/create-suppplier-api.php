@@ -25,47 +25,50 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     // body
     $data = json_decode(file_get_contents("php://input"));
-
+    json_encode($data);
 
     $headers = getallheaders();
 
-    if(!empty($data->Name) && !empty($data->Password)){
+    if(!empty($data->Name) && !empty($data->ContactNumber)){
 
         try{
 
             $jwt = $headers["Authorization"];
 
             $secret_key = "owt125";
-           $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
+            $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
 
-            $user_obj->user_id = $decoded_data->data->Id;
-            $user_obj->customer_name = $data->Name;
-            $user_obj->customer_email = $data->Email;
-            $user_obj->customer_picture = $data->Picture;
-            $user_obj->customer_created = $data->Created;
-            $user_obj->customer_address = $data->Address;
-            $user_obj->customer_mobile_number = $data->MobileNumber;
-            $user_obj->customer_status = $data->Status;
-            $user_obj->customer_password = md5($data->Password);
+            $user_obj->supplier_shop_user_id = $decoded_data->data->Id;
+            $user_obj->supplier_name = $data->Name;
+            $user_obj->supplier_email = $data->Email;
+            $user_obj->supplier_image = $data->SupplierImage;
+            $user_obj->supplier_created = $data->Created;
+            $user_obj->supplier_address = $data->Address;
+            $user_obj->supplier_contact_number = $data->ContactNumber;
+            $user_obj->supplier_status = $data->Status;
+            $user_obj->supplier_details = $data->Details;
+            $user_obj->supplier_shop_id = $data->ShopId;
 
-            $email_data = $user_obj->check_email_customer();
+
+            $email_data = $user_obj->check_email_supplier();
+
 
             if (!empty($email_data)) {
                 // some data we have - insert should not go
                 http_response_code(500);
                 echo json_encode(array(
                     "status" => 201,
-                    "message" => "User already exists, try another email address and mobile Number"
+                    "message" => "User already exists, try another email address and mobile number"
                 ));
             } else {
 
-                if ($user_obj->create_customer()) {
+                if ($user_obj->create_supplier()) {
 
                     http_response_code(200);
                     echo json_encode(array(
                         "status" => 200,
                         "success" => true,
-                        "message" => "Customer has been created"
+                        "message" => "Supplier has been created"
 
                     ));
                 } else {
@@ -74,7 +77,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                     echo json_encode(array(
                         "status" => 500,
                         "success" => false,
-                        "message" => "Failed to save Customer"
+                        "message" => "Failed to save Supplier"
                     ));
                 }
             }

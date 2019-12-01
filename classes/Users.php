@@ -3,6 +3,17 @@
 class Users{
 
   // define properties
+  public $supplier_shop_id;
+  public $supplier_shop_user_id;
+  public $supplier_address;
+  public $supplier_email;
+  public $supplier_contact_number;
+  public $supplier_status;
+  public $supplier_image;
+  public $supplier_details;
+  public $supplier_name;
+  public $supplier_id;
+  public $supplier_created;
   public $customer_name;
   public $customer_mobile_number;
   public $customer_address;
@@ -13,6 +24,7 @@ class Users{
   public $customer_created;
   public $customer_status;
   public $user_id;
+  public $user_image;
   public $user_email;
   public $user_password;
   public $user_address;
@@ -40,6 +52,7 @@ class Users{
   private $projects_tbl;
   private $product_type_tbl;
   private $customer_users_tbl;
+  private $supplier_tbl;
 
 
   public function __construct($db){
@@ -49,6 +62,7 @@ class Users{
      $this->shop_tbl = "shop";
      $this->projects_tbl = "tbl_projects";
      $this->product_type_tbl = "product_category_type";
+     $this->supplier_tbl = "supplier";
   }
 
   public function create_user(){
@@ -67,22 +81,36 @@ class Users{
   }
     public function create_customer(){
 
-      //  $customer_query = "INSERT INTO ".$this->customer_users_tbl." SET Name = ?, Email = ?, Password = ?, MobileNumber =?, Address =?, CreatedBy =?, Status =?, Picture=?, Created=?";
         $customer_query = "INSERT INTO ".$this->customer_users_tbl." SET Name = ?, Email = ?, Password = ?, MobileNumber =?, Address =?,CreatedBy =?, Status =?, Picture=?, Created=?";
 
         $customer_obj = $this->conn->prepare($customer_query);
-
-
-
-      //  $customer_obj->bind_param("sssssssss", $this->customer_name, $this->customer_email,$this->customer_password, $this->customer_mobile_number, $this->customer_address, $this->user_id, $this->customer_status, $this->customer_picture, $this->customer_created);
         $customer_obj->bind_param("sssssssss", $this->customer_name, $this->customer_email,$this->customer_password, $this->customer_mobile_number, $this->customer_address, $this->user_id, $this->customer_status, $this->customer_picture, $this->customer_created);
 
         if($customer_obj->execute()){
             return true;
-            echo "true";
+
         }
         else{
-            echo "false";
+
+            return false;
+        }
+
+        return false;
+    }
+    public function create_supplier(){
+
+        $supplier_query = "INSERT INTO ".$this->supplier_tbl." SET Name = ?, Email = ?, Address = ?, ContactNumber =?, SupplierImage =?,Details =?,ShopId=?, Created=?, ShopUserId=?,Status =?";
+
+        $supplier_obj = $this->conn->prepare($supplier_query);
+
+        $supplier_obj->bind_param("ssssssssss", $this->supplier_name, $this->supplier_email,$this->supplier_address, $this->supplier_contact_number, $this->supplier_image, $this->supplier_details, $this->supplier_shop_id, $this->supplier_created, $this->supplier_shop_user_id, $this->supplier_status);
+
+        if($supplier_obj->execute()){
+            return true;
+
+        }
+        else{
+
             return false;
         }
 
@@ -171,6 +199,10 @@ class Users{
         return false;
 
     }
+    function updateAvatar(){
+        return $result=$this->conn->query("Update ".$this->users_tbl." set Picture='$this->user_image' where Id='$this->user_id'");
+
+    }
     public function update_shop_user_details(){
         $shop_user_update_type_query=("UPDATE ".$this->users_tbl." as u inner join ".$this->shop_tbl." as s on  u.Id =s.ShopUserId SET u.OwnerName=? , u.OwnerAddress=?,s.Address=? where u.Id=?");
 
@@ -184,6 +216,20 @@ class Users{
         return false;
 
     }
+    public function update_supplier(){
+
+        $supplier_update_type_query=("UPDATE ".$this->supplier_tbl." SET Name = ?, Email = ?, Address = ?, ContactNumber =?, SupplierImage =?,Details =?,ShopUserId=?,Status =? where Id=?");
+
+        $supplier_update_type_obj = $this->conn->prepare($supplier_update_type_query);
+
+        $supplier_update_type_obj->bind_param("sssssssss", $this->supplier_name, $this->supplier_email,$this->supplier_address, $this->supplier_contact_number, $this->supplier_image, $this->supplier_details,$this->supplier_shop_user_id, $this->supplier_status, $this->supplier_id);
+
+        if($supplier_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     public function delete_product_type(){
         $product_delete_type_query = "DELETE FROM ".$this->product_type_tbl."  Where Id=? and ShopUserId=? ";
         $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
@@ -191,6 +237,18 @@ class Users{
 
         $product_delete_type_obj->bind_param("ss",  $this->product_category_id, $this->product_category_shop_user_id);
         if($product_delete_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function delete_supplier(){
+        $supplier_delete_type_query = "DELETE FROM ".$this->supplier_tbl."  Where Id=? and ShopUserId=? ";
+        $supplier_delete_type_obj = $this->conn->prepare($supplier_delete_type_query);
+
+
+        $supplier_delete_type_obj->bind_param("ss",  $this->supplier_id, $this->supplier_shop_user_id);
+        if($supplier_delete_type_obj->execute()){
             return true;
         }
         return false;
@@ -277,6 +335,21 @@ class Users{
         $email_query = "SELECT * from ".$this->customer_users_tbl." WHERE (Email = ? ) OR ( MobileNumber = ?)";
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->customer_email, $this->customer_mobile_number);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_email_supplier(){
+
+        $email_query = "SELECT * from ".$this->supplier_tbl." WHERE (Email = ? ) OR ( ContactNumber = ?)";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->supplier_email, $this->supplier_contact_number);
 
         if($usr_obj->execute()){
 
