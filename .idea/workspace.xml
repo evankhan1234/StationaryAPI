@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0f91039d-b06a-4b64-8a44-309337aae975" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution>
+      <executable />
+    </execution>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/firebase/php-jwt" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+    </include_path>
+  </component>
+  <component name="ProjectId" id="1U7CpvD5tGkmAWHdrxQIVyLkKhX" />
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Ddrinkshop" />
+    <property name="nodejs_package_manager_path" value="npm" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0f91039d-b06a-4b64-8a44-309337aae975" name="Default Changelist" comment="" />
+      <created>1574698432896</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1574698432896</updated>
+      <workItem from="1574698434217" duration="1685000" />
+      <workItem from="1574700290261" duration="1789000" />
+      <workItem from="1574702532076" duration="1785000" />
+      <workItem from="1574704345333" duration="1789000" />
+      <workItem from="1574866663049" duration="613000" />
+      <workItem from="1574869629807" duration="1781000" />
+      <workItem from="1574871458433" duration="1785000" />
+      <workItem from="1574873289441" duration="1788000" />
+      <workItem from="1574875102522" duration="1789000" />
+      <workItem from="1575095574803" duration="629000" />
+      <workItem from="1575098193259" duration="598000" />
+      <workItem from="1575101427243" duration="591000" />
+      <workItem from="1575103991312" duration="1310000" />
+      <workItem from="1575123065205" duration="1727000" />
+      <workItem from="1575124826425" duration="1816000" />
+      <workItem from="1575127046185" duration="1788000" />
+      <workItem from="1575129011291" duration="1711000" />
+      <workItem from="1575130784554" duration="1483000" />
+      <workItem from="1575132728419" duration="1788000" />
+      <workItem from="1575134542201" duration="1170000" />
+      <workItem from="1575136366299" duration="1799000" />
+      <workItem from="1575138190441" duration="1786000" />
+      <workItem from="1575140008656" duration="1787000" />
+      <workItem from="1575142548931" duration="1736000" />
+      <workItem from="1575144312967" duration="712000" />
+      <workItem from="1575183337290" duration="1259000" />
+      <workItem from="1575186856385" duration="1408000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+</project>
