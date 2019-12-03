@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
     $headers = getallheaders();
 
 
-    if(!empty($data->Name)){
+    if(!empty($data->ProductName)){
 
         try{
 
@@ -39,40 +39,40 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $secret_key = "owt125";
             $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
 
-            $user_obj->product_shop_user_id = $decoded_data->data->Id;
-            $user_obj->product_name = $data->Name;
-            $user_obj->product_details = $data->Details;
-            $user_obj->product_code = $data->ProductCode;
-            $user_obj->product_image = $data->ProductImage;
-            $user_obj->product_sell_price= $data->SellPrice;
-            $user_obj->product_supplier_price = $data->SupplierPrice;
-            $user_obj->product_supplier_id= $data->SupplierId;
-            $user_obj->product_discount = $data->Discounts;
-            $user_obj->product_unit_id = $data->UnitId;
-            $user_obj->product_shop_id = $data->ShopId;
-            $user_obj->product_stock = $data->Stock;
-            $user_obj->product_created = $data->Created;
-            $user_obj->product_status = $data->Status;
-            $user_obj->product_category_type_id = $data->ProductCategoryId;
+            $user_obj->purchase_shop_user_id = $decoded_data->data->Id;
+            $user_obj->purchase_name = $data->ProductName;
+            $user_obj->purchase_details = $data->ProductDetails;
+            $user_obj->purchase_no = $data->PurchaseNo;
+            $user_obj->purchase_date = $data->PurchaseDate;
+            $user_obj->purchase_item = $data->Item;
+            $user_obj->purchase_quantity = $data->Quantity;
+            $user_obj->purchase_discount = $data->Discount;
+            $user_obj->purchase_rate = $data->Rate;
+            $user_obj->purchase_total = $data->Total;
+            $user_obj->purchase_grand_total = $data->GrandTotal;
+            $user_obj->purchase_unit_id = $data->UnitId;
+            $user_obj->purchase_shop_id = $data->ShopId;
+            $user_obj->purchase_stock = $data->Stock;
+            $user_obj->purchase_created = $data->Created;
 
-            $email_data = $user_obj->check_product();
+            $email_data = $user_obj->check_purchase();
 
             if (!empty($email_data)) {
                 // some data we have - insert should not go
                 http_response_code(500);
                 echo json_encode(array(
                     "status" => 201,
-                    "message" => "Product already exists"
+                    "message" => "Purchase already exists"
                 ));
             } else {
 
-                if ($user_obj->create_product()) {
+                if ($user_obj->create_purchase()) {
 
                     http_response_code(200);
                     echo json_encode(array(
                         "status" => 200,
                         "success" => true,
-                        "message" => "Product  has been created"
+                        "message" => "Product Purchased has been created"
 
                     ));
                 } else {
@@ -81,7 +81,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                     echo json_encode(array(
                         "status" => 500,
                         "success" => false,
-                        "message" => "Failed to save Product"
+                        "message" => "Failed to save Purchased"
                     ));
                 }
             }

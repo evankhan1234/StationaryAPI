@@ -3,16 +3,20 @@
   <component name="ChangeListManager">
     <list default="true" id="0f91039d-b06a-4b64-8a44-309337aae975" name="Default Changelist" comment="">
       <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v1/create-product-api.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v1/create-suppplier-api.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v1/delete-supplier-api.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v1/update-image-shop-user-profile.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v1/update-supplier-api.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/create-customer-image-api.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/create-product-image-api.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/create-purchase-api.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/delete-product-api.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/delete-purchase-api.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/product-category-type-get.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/unit-details.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/update-product-api.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/v1/update-purchase-api.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes/Users.php" beforeDir="false" afterPath="$PROJECT_DIR$/classes/Users.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/v1/create-customer-registration.php" beforeDir="false" afterPath="$PROJECT_DIR$/v1/create-customer-registration.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1/create-product-api.php" beforeDir="false" afterPath="$PROJECT_DIR$/v1/create-product-api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1/update-product-category.php" beforeDir="false" afterPath="$PROJECT_DIR$/v1/update-product-category.php" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,21 +39,27 @@
   </component>
   <component name="ProjectId" id="1U7CpvD5tGkmAWHdrxQIVyLkKhX" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Ddrinkshop" />
+    <property name="last_opened_file_path" value="E:/Basa/API/drinkshop" />
     <property name="nodejs_package_manager_path" value="npm" />
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
+  <component name="ServiceViewManager">
+    <option name="viewStates">
       <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
       </list>
     </option>
   </component>
@@ -95,6 +105,7 @@
       <workItem from="1575211490025" duration="1687000" />
       <workItem from="1575213480296" duration="1792000" />
       <workItem from="1575215524098" duration="233000" />
+      <workItem from="1575347641077" duration="16515000" />
     </task>
     <servers />
   </component>
@@ -113,5 +124,19 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="463" y="118" key="FileChooserDialogImpl" timestamp="1575352407200">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="463" y="118" key="FileChooserDialogImpl/0.0.1366.728/-1920.-314.1920.1040@0.0.1366.728" timestamp="1575352407200" />
+    <state x="518" y="286" key="NewPhpFileDialog" timestamp="1575364574336">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="518" y="286" key="NewPhpFileDialog/0.0.1366.728/-1920.-314.1920.1040@0.0.1366.728" timestamp="1575364574336" />
+    <state x="384" y="186" key="com.intellij.ide.util.TipDialog" timestamp="1575347642774">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="384" y="186" key="com.intellij.ide.util.TipDialog/0.0.1366.728/-1920.-314.1920.1040@0.0.1366.728" timestamp="1575347642774" />
   </component>
 </project>

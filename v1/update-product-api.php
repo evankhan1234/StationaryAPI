@@ -29,7 +29,6 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     $headers = getallheaders();
 
-
     if(!empty($data->Name)){
 
         try{
@@ -37,8 +36,8 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $jwt = $headers["Authorization"];
 
             $secret_key = "owt125";
-            $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
 
+            $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
             $user_obj->product_shop_user_id = $decoded_data->data->Id;
             $user_obj->product_name = $data->Name;
             $user_obj->product_details = $data->Details;
@@ -54,38 +53,28 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $user_obj->product_created = $data->Created;
             $user_obj->product_status = $data->Status;
             $user_obj->product_category_type_id = $data->ProductCategoryId;
+            $user_obj->product_id = $data->Id;
 
-            $email_data = $user_obj->check_product();
+            if($user_obj->update_product()){
 
-            if (!empty($email_data)) {
-                // some data we have - insert should not go
-                http_response_code(500);
+                http_response_code(200); // ok
                 echo json_encode(array(
-                    "status" => 201,
-                    "message" => "Product already exists"
+                    "status" => 200,
+                    "success" => true,
+                    "message" => "Product Updated SuccessFully"
                 ));
-            } else {
+            }else{
 
-                if ($user_obj->create_product()) {
+                http_response_code(500); //server error
+                echo json_encode(array(
 
-                    http_response_code(200);
-                    echo json_encode(array(
-                        "status" => 200,
-                        "success" => true,
-                        "message" => "Product  has been created"
-
-                    ));
-                } else {
-
-                    http_response_code(500);
-                    echo json_encode(array(
-                        "status" => 500,
-                        "success" => false,
-                        "message" => "Failed to save Product"
-                    ));
-                }
+                    "status" => 500,
+                    "success" => false,
+                    "message" => "Failed to Updated Product "
+                ));
             }
-        }catch (Exception $ex){
+        }catch(Exception $ex){
+
             http_response_code(500); //server error
             echo json_encode(array(
                 "status" => 501,
@@ -93,18 +82,15 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                 "message" => $ex->getMessage()
             ));
         }
+    }else{
 
-
+        http_response_code(404); // not found
+        echo json_encode(array(
+            "status" => 503,
+            "success" => false,
+            "message" => "All data needed"
+        ));
     }
-
-
-}else{
-
-    http_response_code(503);
-    echo json_encode(array(
-        "status" => 0,
-        "message" => "Access Denied"
-    ));
 }
 
 ?>

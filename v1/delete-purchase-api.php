@@ -26,33 +26,29 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
     // body
     $data = json_decode(file_get_contents("php://input"));
 
-    echo json_encode($data);
-    $headers = getallheaders();
 
-    if(!empty($data->Name) ){
+    $headers = getallheaders();
+    $jwt = $headers["Authorization"];
+
+    $secret_key = "owt125";
+
+    $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
+    if(!empty($decoded_data->data->Id)){
 
         try{
 
-            $jwt = $headers["Authorization"];
-            echo json_encode($jwt);
 
-            $secret_key = "owt125";
+            $user_obj->purchase_shop_user_id = $decoded_data->data->Id;
+            $user_obj->purchase_id = $data->Id;
 
-            $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-            $user_obj->product_category_shop_user_id = $decoded_data->data->Id;
-            $user_obj->product_category_name = $data->Name;
-            $user_obj->product_category_status = $data->Status;
-            $user_obj->product_category_shop_id= $data->ShopId;
-            $user_obj->product_category_created = $data->created;
-            $user_obj->product_category_id = $data->Id;
 
-            if($user_obj->update_product_type()){
+            if($user_obj->delete_purchase()){
 
                 http_response_code(200); // ok
                 echo json_encode(array(
                     "status" => 200,
                     "success" => true,
-                    "message" => "Product Category Updated SuccessFull"
+                    "message" => "Purchase  Deleted SuccessFull"
                 ));
             }else{
 
@@ -61,7 +57,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
                     "status" => 500,
                     "success" => false,
-                    "message" => "Failed to Updated Product Category"
+                    "message" => "Failed to Deleted Purchase "
                 ));
             }
         }catch(Exception $ex){

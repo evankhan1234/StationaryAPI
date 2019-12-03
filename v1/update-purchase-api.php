@@ -26,33 +26,42 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
     // body
     $data = json_decode(file_get_contents("php://input"));
 
-    echo json_encode($data);
+
     $headers = getallheaders();
 
-    if(!empty($data->Name) ){
+    if(!empty($data->ProductName)){
 
         try{
 
             $jwt = $headers["Authorization"];
-            echo json_encode($jwt);
 
             $secret_key = "owt125";
 
             $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-            $user_obj->product_category_shop_user_id = $decoded_data->data->Id;
-            $user_obj->product_category_name = $data->Name;
-            $user_obj->product_category_status = $data->Status;
-            $user_obj->product_category_shop_id= $data->ShopId;
-            $user_obj->product_category_created = $data->created;
-            $user_obj->product_category_id = $data->Id;
+            $user_obj->purchase_shop_user_id = $decoded_data->data->Id;
+            $user_obj->purchase_id = $data->Id;
+            $user_obj->purchase_name = $data->ProductName;
+            $user_obj->purchase_details = $data->ProductDetails;
+            $user_obj->purchase_no = $data->PurchaseNo;
+            $user_obj->purchase_date = $data->PurchaseDate;
+            $user_obj->purchase_item = $data->Item;
+            $user_obj->purchase_quantity = $data->Quantity;
+            $user_obj->purchase_discount = $data->Discount;
+            $user_obj->purchase_rate = $data->Rate;
+            $user_obj->purchase_total = $data->Total;
+            $user_obj->purchase_grand_total = $data->GrandTotal;
+            $user_obj->purchase_unit_id = $data->UnitId;
+            $user_obj->purchase_shop_id = $data->ShopId;
+            $user_obj->purchase_stock = $data->Stock;
+            $user_obj->purchase_created = $data->Created;
 
-            if($user_obj->update_product_type()){
+            if($user_obj->update_purchase()){
 
                 http_response_code(200); // ok
                 echo json_encode(array(
                     "status" => 200,
                     "success" => true,
-                    "message" => "Product Category Updated SuccessFull"
+                    "message" => "Purchase Updated SuccessFully"
                 ));
             }else{
 
@@ -61,7 +70,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
                     "status" => 500,
                     "success" => false,
-                    "message" => "Failed to Updated Product Category"
+                    "message" => "Failed to Updated Purchase "
                 ));
             }
         }catch(Exception $ex){
