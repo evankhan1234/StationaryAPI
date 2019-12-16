@@ -12,7 +12,7 @@ class Database{
   public function connect(){
      // variable initialization
      $this->hostname = "localhost";
-     $this->dbname = "stationary";
+     $this->dbname = "bazar";
      $this->username = "root";
      $this->password = "";
 

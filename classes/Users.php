@@ -58,6 +58,7 @@ class Users{
   public $customer_status;
   public $user_id;
   public $user_image;
+
   public $user_email;
   public $user_password;
   public $user_address;
@@ -279,6 +280,25 @@ class Users{
     function updateAvatar(){
         return $result=$this->conn->query("Update ".$this->users_tbl." set Picture='$this->user_image' where Id='$this->user_id'");
 
+    }
+    function updateProductImage(){
+
+        return $result=$this->conn->query("Update product set ProductImage='$this->product_image' where Id='$this->product_id' AND ShopUserId='$this->user_id'");
+
+    }
+    function updateProductImages(){
+//        echo json_encode($this->product_id);
+//        return $result=$this->conn->query("Update product set ProductImage='$this->product_image' where Id='$this->product_id'");
+//        $shop_user_update_type_querys=("UPDATE  ".$this->product_tbl."  SET Name=?  where Id=?");
+//        echo json_encode($shop_user_update_type_querys);
+//        $shop_user_update_type_objs = $this->conn->prepare($shop_user_update_type_querys);
+//
+//
+//        $shop_user_update_type_objs->bind_param("ss", $this->product_image, $this->product_id);
+//        if($shop_user_update_type_objs->execute()){
+//            return true;
+//        }
+//        return false;
     }
     public function update_shop_user_details(){
         $shop_user_update_type_query=("UPDATE ".$this->users_tbl." as u inner join ".$this->shop_tbl." as s on  u.Id =s.ShopUserId SET u.OwnerName=? , u.OwnerAddress=?,s.Address=? where u.Id=?");

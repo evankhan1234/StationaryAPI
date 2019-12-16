@@ -28,6 +28,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
 
 
     $headers = getallheaders();
+    $id=$_POST['Id'];
 
     if (isset($_FILES["uploaded_file"]["name"])) {
         $name = $_FILES['uploaded_file']["name"];
@@ -35,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
         $error = $_FILES['uploaded_file']["error"];
 
         if (!empty($name)) {
-            $location = "./user_img/";
+            $location = "./product_img/";
             try {
                 $jwt = $headers["Authorization"];
 
@@ -44,19 +45,33 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
                 $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
 
                 $user_obj->user_id = $decoded_data->data->Id;
+                $user_obj->product_id = $id;
+
+
                 if (!is_dir($location)) {
                     mkdir($location);
                 }
                 if (move_uploaded_file($tmp_name, $location . $name)) {
                     $total="http://".($headers["Host"])."/bazar/v1/". $location . $name;
-                    $user_obj->user_image = $total;
+                    $user_obj->product_image = $total;
 
-                     echo json_encode(array(
+                    $user_obj->updateProductImage();
+                    if ($user_obj) {
+                        http_response_code(200); // ok
+                        echo json_encode(array(
                             "status" => 200,
                             "success" => true,
-                            "img_address" => $user_obj->user_image,
-                            "message" => "User Image Uploaded SuccessFull"
+                            "message" => "Product Image   Updated SuccessFull"
                         ));
+                    } else {
+                        http_response_code(500); //server error
+                        echo json_encode(array(
+
+                            "status" => 500,
+                            "success" => false,
+                            "message" => "Failed to Updated User Image"
+                        ));
+                    }
 
                 } else {
                     http_response_code(500); //server error
