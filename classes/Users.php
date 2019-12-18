@@ -4,6 +4,26 @@ class Users{
 
   // define properties
 
+  public $order_shop_id;
+  public $order_customer_id;
+  public $order_created;
+  public $order_status;
+  public $order_address;
+  public $order_area;
+  public $order_latitude;
+  public $order_longitude;
+  public $order_details_name;
+  public $order_details_quantity;
+  public $order_details_price;
+  public $order_details_product_id;
+  public $order_details_item;
+  public $order_details_status;
+  public $order_details_picture;
+  public $order_details_shop_id;
+  public $order_details_created;
+  public $order_details_customer_id;
+  public $order_id;
+
   public $product_id;
   public $product_name;
   public $product_details;
@@ -89,7 +109,9 @@ class Users{
   private $supplier_tbl;
   private $unit_tbl;
   private $product_tbl;
+  private $order_tbl;
   private $purchase_tbl;
+  private $order_details_tbl;
 
 
   public function __construct($db){
@@ -103,6 +125,8 @@ class Users{
      $this->unit_tbl = "unit";
      $this->product_tbl = "product";
      $this->purchase_tbl = "purchase";
+     $this->order_tbl = "orders";
+     $this->order_details_tbl = "orderdetails";
   }
 
   public function create_user(){
@@ -165,6 +189,46 @@ class Users{
         $product_obj->bind_param("sssssssssssssss", $this->product_name, $this->product_details,$this->product_code, $this->product_image, $this->product_sell_price, $this->product_supplier_price, $this->product_supplier_id, $this->product_status, $this->product_discount, $this->product_created, $this->product_unit_id, $this->product_stock, $this->product_shop_id, $this->product_category_type_id, $this->product_shop_user_id);
 
         if($product_obj->execute()){
+            return true;
+
+        }
+        else{
+
+            return false;
+        }
+
+        return false;
+    }
+    public function create_order(){
+
+        $product_query = "INSERT INTO ".$this->order_tbl." SET ShopId = ?, CustomerId = ?, Created = ?, Status =?, OrderAddress =?,OrderArea =?, OrderLatitude =?, OrderLongitude=?";
+
+
+
+        $product_obj = $this->conn->prepare($product_query);
+
+        $product_obj->bind_param("ssssssss", $this->order_shop_id, $this->order_customer_id,$this->order_created, $this->order_status, $this->order_address, $this->order_area, $this->order_latitude, $this->order_longitude);
+
+        if($product_obj->execute()){
+            return true;
+
+        }
+        else{
+
+            return false;
+        }
+
+        return false;
+    }
+    public function create_order_details(){
+
+        $product_querys = "INSERT INTO ".$this->order_details_tbl." SET Name = ?, CustomerId = ?, Created = ?, Quantity =?, Price =?,ProductId =?, Item =?,Picture =?, OrderId =?, OrderStatus=?,ShopId=?";
+
+        $product_objs = $this->conn->prepare($product_querys);
+
+        $product_objs->bind_param("sssssssssss", $this->order_details_name, $this->order_details_customer_id,$this->order_details_created, $this->order_details_quantity, $this->order_details_price, $this->order_details_product_id, $this->order_details_item, $this->order_details_price, $this->order_id, $this->order_details_status, $this->order_details_shop_id);
+
+        if($product_objs->execute()){
             return true;
 
         }
@@ -481,6 +545,28 @@ class Users{
 
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->user_email,$this->user_mobile);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_order(){
+
+        //$email_query = "SELECT * from ".$this->users_tbl." WHERE Email = ?";
+        $email_query = "Select * from ".$this->order_tbl." WHERE CustomerId = ? AND Created = ?";
+
+
+//        $email_query = "Select * from ".$this->users_tbl." WHERE
+//  (Email = ? AND Password = ?) OR
+//  (Password = ? AND OwnerMobileNumber = ?)";
+
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->order_customer_id,$this->order_created);
 
         if($usr_obj->execute()){
 
