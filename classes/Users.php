@@ -224,9 +224,11 @@ class Users{
 
         $product_querys = "INSERT INTO ".$this->order_details_tbl." SET Name = ?, CustomerId = ?, Created = ?, Quantity =?, Price =?,ProductId =?, Item =?,Picture =?, OrderId =?, OrderStatus=?,ShopId=?";
 
+
         $product_objs = $this->conn->prepare($product_querys);
 
-        $product_objs->bind_param("sssssssssss", $this->order_details_name, $this->order_details_customer_id,$this->order_details_created, $this->order_details_quantity, $this->order_details_price, $this->order_details_product_id, $this->order_details_item, $this->order_details_price, $this->order_id, $this->order_details_status, $this->order_details_shop_id);
+
+        $product_objs->bind_param("sssssssssss", $this->order_details_name, $this->order_details_customer_id,$this->order_details_created, $this->order_details_quantity, $this->order_details_price, $this->order_details_product_id, $this->order_details_item, $this->order_details_picture, $this->order_id, $this->order_details_status, $this->order_details_shop_id);
 
         if($product_objs->execute()){
             return true;
