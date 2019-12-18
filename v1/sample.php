@@ -31,7 +31,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     foreach ($data->data as $val)
     {
-        $league=$val->CHALLAN_DETAIL_NO;
+        $league=$val->Name;
         echo json_encode($league);
 
     }
