@@ -337,7 +337,7 @@ class Users{
     }
     public function delete_product_type(){
         $product_delete_type_query = "DELETE FROM ".$this->product_type_tbl."  Where Id=? and ShopUserId=? ";
-      
+
 
         $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
 
