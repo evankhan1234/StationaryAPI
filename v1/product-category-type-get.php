@@ -24,7 +24,7 @@ $user_obj = new Users($connection);
 if($_SERVER['REQUEST_METHOD'] === "GET"){
 
     // body
-    $data = json_decode(file_get_contents("php://input"));
+    //$data = json_decode(file_get_contents("php://input"));
 
     //  $user_obj->user_email = $data->Email;
     $headers = getallheaders();
@@ -59,8 +59,9 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
             http_response_code(500); //server error
             echo json_encode(array(
 
-                "status" => 500,
-                "success" => false,
+                "status" => 200,
+                "success" => true,
+                "data" => $categoriess,
                 "message" => "No Categories Found"
             ));
         }
