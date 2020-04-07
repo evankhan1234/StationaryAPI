@@ -48,7 +48,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
                     mkdir($location);
                 }
                 if (move_uploaded_file($tmp_name, $location . $name)) {
-                    $total="http://".($headers["Host"])."/bazar/v1/". $location . $name;
+                    $total="http://".($headers["Host"])."/stationary/v1/". $location . $name;
                     $user_obj->user_image = $total;
 
                      echo json_encode(array(
