@@ -514,6 +514,22 @@ class Users{
 
 
     }
+    public function getProductList(){
+
+        $result=("Select * from product where  ShopUserId=?");
+        $products_query_obj = $this->conn->prepare($result);
+        $products_query_obj->bind_param("s",$this->user_id);
+        $products=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
+
+
+    }
     public function getProductCategoryType(){
 
         $categorys_query=("Select * from product_category_type where  ShopUserId=?");

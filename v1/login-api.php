@@ -28,24 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     if (!empty($data->Password)) {
 
         $user_obj->user_email = $data->Email;
-        $user_obj->user_password =  md5($data->Password);
-       $user_obj->user_mobile= $data->OwnerMobileNumber;
-
-
+        $user_obj->user_password = md5($data->Password);
+        $user_obj->user_mobile = $data->OwnerMobileNumber;
         $user_data = $user_obj->check_login_details();
-
-
-        $name = $user_data['OwnerName'];
-        $email = $user_data['Email'];
-        $password = $user_data['Password'];
-
-
         $md5 = md5($data->Password);
-
-
-
-        if ($password == $md5) { // normal password, hashed password
-
+        if ($user_data != null) { // normal password, hashed password
+            $name = $user_data['OwnerName'];
+            $email = $user_data['Email'];
+            $password = $user_data['Password'];
             $iss = "localhost";
             $iat = time();
             $nbf = $iat + 10;
@@ -70,16 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
             $jwt = JWT::encode($payload_info, $secret_key, 'HS512');
             $datas = $user_obj->check_email();
-            $Status=$datas["Status"];
-            if ($Status==0){
+            $Status = $datas["Status"];
+            if ($Status == 0) {
                 echo json_encode(array(
                     "status" => 202,
                     "success" => false,
 
                     "message" => "You are not active User"
                 ));
-            }
-            else{
+            } else {
                 http_response_code(200);
                 echo json_encode(array(
                     "status" => 200,
