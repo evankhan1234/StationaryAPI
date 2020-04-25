@@ -514,6 +514,17 @@ class Users{
 
 
     }
+    public function getShopType(){
+
+
+        $result= $this->conn->query("Select * from shoptype");
+        $shops=array();
+        while ($item=$result->fetch_assoc())
+            $shops[]=$item;
+        return $shops;
+
+
+    }
     public function getProductList(){
 
         $result=("Select * from product where  ShopUserId=?");
