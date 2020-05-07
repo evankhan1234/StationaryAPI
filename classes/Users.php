@@ -83,6 +83,7 @@ class Users{
   public $user_password;
   public $user_address;
   public $user_mobile;
+  public $user_shop_id;
   public $user_picture;
   public $user_created_date;
   public $agreement_date;
@@ -574,6 +575,23 @@ class Users{
 
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->user_email,$this->user_mobile);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_shop_id(){
+
+        $email_query = "Select * from ".$this->shop_tbl." WHERE  ShopUserId=?";
+
+        $usr_obj = $this->conn->prepare($email_query);
+        
+        $usr_obj->bind_param("s", $this->user_shop_id);
 
         if($usr_obj->execute()){
 
