@@ -60,6 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
             $jwt = JWT::encode($payload_info, $secret_key, 'HS512');
             $datas = $user_obj->check_email();
+
+            $user_obj->user_shop_id= $datas['Id'];
+
+            $shop_id = $user_obj->check_shop_id();
             $Status = $datas["Status"];
             if ($Status == 0) {
                 echo json_encode(array(
@@ -75,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     "success" => true,
                     "jwt" => $jwt,
                     "data" => $datas,
+                    "shopId" => $shop_id,
                     "message" => "User logged in successfully"
                 ));
             }
