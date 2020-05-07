@@ -77,6 +77,8 @@ class Users{
   public $customer_created;
   public $customer_status;
   public $user_id;
+  public $limit;
+  public $page;
   public $user_image;
 
   public $user_email;
@@ -549,6 +551,28 @@ class Users{
         $categorys_query_obj = $this->conn->prepare($categorys_query);
 
         $categorys_query_obj->bind_param("s",$this->user_id);
+        $units=array();
+        if($categorys_query_obj->execute()){
+            $data = $categorys_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+
+
+
+
+    }
+
+    public function getProductCategoryTypeExtra(){
+
+        $categorys_query=("Select * from product_category_type where  ShopUserId=?  LIMIT? OFFSET?");
+        $categorys_query_obj = $this->conn->prepare($categorys_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $categorys_query_obj->bind_param("sss",$this->user_id,$this->limit,$offset_page);
         $units=array();
         if($categorys_query_obj->execute()){
             $data = $categorys_query_obj->get_result();
