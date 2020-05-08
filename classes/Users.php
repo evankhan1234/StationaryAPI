@@ -335,11 +335,10 @@ class Users{
 
     }
     public function update_product_type(){
-        $product_update_type_query = "UPDATE ".$this->product_type_tbl." SET Name = ?, Status = ?, ShopId = ?, created = ?,ShopUserId=? Where Id=?";
+        $product_update_type_query = "UPDATE product_category_type SET Name = ?, Status = ?, ShopId = ?, created = ? Where Id=?";
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
 
-
-        $product_update_type_obj->bind_param("ssssss", $this->product_category_name, $this->product_category_status, $this->product_category_shop_id, $this->product_category_created, $this->product_category_shop_user_id, $this->product_shop_user_id);
+        $product_update_type_obj->bind_param("sssss", $this->product_category_name, $this->product_category_status, $this->product_category_shop_id, $this->product_category_created, $this->product_category_id);
         if($product_update_type_obj->execute()){
             return true;
         }
@@ -576,6 +575,27 @@ class Users{
         $units=array();
         if($categorys_query_obj->execute()){
             $data = $categorys_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+
+
+
+
+    }
+    public function getSupplierPagination(){
+
+        $suppliers_query=("Select * from supplier where  ShopUserId=?  LIMIT? OFFSET?");
+        $suppliers_query_obj = $this->conn->prepare($suppliers_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $suppliers_query_obj->bind_param("sss",$this->user_id,$this->limit,$offset_page);
+        $units=array();
+        if($suppliers_query_obj->execute()){
+            $data = $suppliers_query_obj->get_result();
 
             while ($item=$data->fetch_assoc())
                 $units[]=$item;

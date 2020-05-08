@@ -26,7 +26,6 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
     // body
     $data = json_decode(file_get_contents("php://input"));
 
-    echo json_encode($data);
     $headers = getallheaders();
 
     if(!empty($data->Name) ){
@@ -34,12 +33,10 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
         try{
 
             $jwt = $headers["Authorization"];
-            echo json_encode($jwt);
 
             $secret_key = "owt125";
 
             $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-            $user_obj->product_category_shop_user_id = $decoded_data->data->Id;
             $user_obj->product_category_name = $data->Name;
             $user_obj->product_category_status = $data->Status;
             $user_obj->product_category_shop_id= $data->ShopId;
