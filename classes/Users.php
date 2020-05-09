@@ -79,6 +79,7 @@ class Users{
   public $customer_status;
   public $user_id;
   public $limit;
+  public $search;
   public $page;
   public $user_image;
 
@@ -567,7 +568,6 @@ class Users{
     }
 
     public function getProductCategoryTypeExtra(){
-
         $categorys_query=("Select * from product_category_type where  ShopUserId=?  LIMIT? OFFSET?");
         $categorys_query_obj = $this->conn->prepare($categorys_query);
         $page=$this->page-1;
@@ -582,9 +582,18 @@ class Users{
             return $units;
         }
 
-
-
-
+    }
+    public function getProductCategoryTypeExtraSearch(){
+        $categorys_query=("Select * from product_category_type where  ShopUserId=? AND NAME LIKE ?");
+        $categorys_query_obj = $this->conn->prepare($categorys_query);
+        $categorys_query_obj->bind_param("ss",$this->user_id,$this->search);
+        $units=array();
+        if($categorys_query_obj->execute()){
+            $data = $categorys_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
 
     }
     public function getSupplierPagination(){
