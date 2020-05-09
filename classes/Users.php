@@ -54,6 +54,7 @@ class Users{
   public $purchase_unit_id;
   public $purchase_shop_id;
   public $purchase_created;
+  public $purchase_status;
   public $purchase_shop_user_id;
   public $purchase_id;
   public $supplier_shop_id;
@@ -166,10 +167,10 @@ class Users{
     }
     public function create_purchase(){
 
-        $purchase_query = "INSERT INTO ".$this->purchase_tbl." SET ProductName = ?, ProductDetails = ?, PurchaseNo = ?, PurchaseDate =?, Stock =?,Item =?, Quantity =?, Rate=?, Discount=?, Total =?,GrandTotal =?, UnitId =?, ShopId=?, Created=?,ShopUserId=?";
+        $purchase_query = "INSERT INTO ".$this->purchase_tbl." SET ProductName = ?, ProductDetails = ?, PurchaseNo = ?, PurchaseDate =?, Stock =?,Item =?, Quantity =?, Rate=?, Discount=?, Total =?,GrandTotal =?, UnitId =?, ShopId=?, Created=?,Status=?,ShopUserId=?";
 
         $purchase_obj = $this->conn->prepare($purchase_query);
-        $purchase_obj->bind_param("sssssssssssssss", $this->purchase_name, $this->purchase_details,$this->purchase_no, $this->purchase_date, $this->purchase_stock, $this->purchase_item, $this->purchase_quantity, $this->purchase_rate, $this->purchase_discount, $this->purchase_total, $this->purchase_grand_total, $this->purchase_unit_id, $this->purchase_shop_id, $this->purchase_created, $this->purchase_shop_user_id);
+        $purchase_obj->bind_param("ssssssssssssssss", $this->purchase_name, $this->purchase_details,$this->purchase_no, $this->purchase_date, $this->purchase_stock, $this->purchase_item, $this->purchase_quantity, $this->purchase_rate, $this->purchase_discount, $this->purchase_total, $this->purchase_grand_total, $this->purchase_unit_id, $this->purchase_shop_id, $this->purchase_created, $this->purchase_status,$this->purchase_shop_user_id);
 
         if($purchase_obj->execute()){
             return true;
@@ -396,12 +397,12 @@ class Users{
 
     }
     public function update_purchase(){
-        $purchase_update_type_query=("UPDATE ".$this->purchase_tbl." SET ProductName = ?, ProductDetails = ?, PurchaseNo = ?, PurchaseDate =?, Stock =?,Item =?, Quantity =?, Rate=?, Discount=?, Total =?,GrandTotal =?, UnitId =?, ShopId=?, Created=?,ShopUserId=? where Id=? AND ShopUserId=? ");
+        $purchase_update_type_query=("UPDATE ".$this->purchase_tbl." SET ProductName = ?, ProductDetails = ?, PurchaseNo = ?, PurchaseDate =?, Stock =?,Item =?, Quantity =?, Rate=?, Discount=?, Total =?,GrandTotal =?, UnitId =?, ShopId=?, Created=?,Status=?,ShopUserId=? where Id=? AND ShopUserId=? ");
 
 
         $purchase_update_type_obj = $this->conn->prepare($purchase_update_type_query);
 
-        $purchase_update_type_obj->bind_param("sssssssssssssssss", $this->purchase_name, $this->purchase_details,$this->purchase_no, $this->purchase_date, $this->purchase_stock, $this->purchase_item, $this->purchase_quantity, $this->purchase_rate, $this->purchase_discount, $this->purchase_total, $this->purchase_grand_total, $this->purchase_unit_id, $this->purchase_shop_id, $this->purchase_created, $this->purchase_shop_user_id, $this->purchase_id, $this->purchase_shop_user_id);
+        $purchase_update_type_obj->bind_param("ssssssssssssssssss", $this->purchase_name, $this->purchase_details,$this->purchase_no, $this->purchase_date, $this->purchase_stock, $this->purchase_item, $this->purchase_quantity, $this->purchase_rate, $this->purchase_discount, $this->purchase_total, $this->purchase_grand_total, $this->purchase_unit_id, $this->purchase_shop_id, $this->purchase_created, $this->purchase_status,$this->purchase_shop_user_id, $this->purchase_id, $this->purchase_shop_user_id);
 
         if($purchase_update_type_obj->execute()){
             return true;
@@ -587,7 +588,6 @@ class Users{
 
     }
     public function getSupplierPagination(){
-
         $suppliers_query=("Select * from supplier where  ShopUserId=?  LIMIT? OFFSET?");
         $suppliers_query_obj = $this->conn->prepare($suppliers_query);
         $page=$this->page-1;
@@ -602,9 +602,21 @@ class Users{
             return $units;
         }
 
+    }
+    public function getPurchasePagination(){
+        $purchase_query=("Select * from purchase where  ShopUserId=?  LIMIT? OFFSET?");
+        $purchase_query_obj = $this->conn->prepare($purchase_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $purchase_query_obj->bind_param("sss",$this->user_id,$this->limit,$offset_page);
+        $units=array();
+        if($purchase_query_obj->execute()){
+            $data = $purchase_query_obj->get_result();
 
-
-
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
 
     }
     public function check_email(){
