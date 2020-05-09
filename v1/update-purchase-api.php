@@ -54,6 +54,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $user_obj->purchase_shop_id = $data->ShopId;
             $user_obj->purchase_stock = $data->Stock;
             $user_obj->purchase_created = $data->Created;
+            $user_obj->purchase_status = $data->Status;
 
             if($user_obj->update_purchase()){
 
