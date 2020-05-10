@@ -186,12 +186,12 @@ class Users{
     }
     public function create_product(){
 
-        $product_query = "INSERT INTO ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, SupplierId =?, Status=?, Discounts=?, Created =?,UnitId =?, Stock =?, ShopId=?, ProductCategoryId=?,ShopUserId=?";
+        $product_query = "INSERT INTO ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, SupplierId =?,UnitId =?, ShopId=?,ShopUserId=?, Status=?, Discount=?, Created =?, Stock =?, ProductCategoryId=?";
 
 
         $product_obj = $this->conn->prepare($product_query);
 
-        $product_obj->bind_param("sssssssssssssss", $this->product_name, $this->product_details,$this->product_code, $this->product_image, $this->product_sell_price, $this->product_supplier_price, $this->product_supplier_id, $this->product_status, $this->product_discount, $this->product_created, $this->product_unit_id, $this->product_stock, $this->product_shop_id, $this->product_category_type_id, $this->product_shop_user_id);
+        $product_obj->bind_param("sssssssssssssss", $this->product_name, $this->product_details,$this->product_code, $this->product_image, $this->product_sell_price, $this->product_supplier_price, $this->product_supplier_id, $this->product_unit_id, $this->product_shop_id, $this->product_shop_user_id, $this->product_status, $this->product_discount, $this->product_created,  $this->product_stock, $this->product_category_type_id);
 
         if($product_obj->execute()){
             return true;
@@ -412,7 +412,7 @@ class Users{
 
     }
     public function update_product(){
-        $product_update_type_query=("UPDATE ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, SupplierId =?, Status=?, Discounts=?, Created =?,UnitId =?, Stock =?, ShopId=?, ProductCategoryId=?,ShopUserId=? where Id=? AND ShopUserId=?");
+        $product_update_type_query=("UPDATE ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, SupplierId =?, Status=?, Discount=?, Created =?,UnitId =?, Stock =?, ShopId=?, ProductCategoryId=?,ShopUserId=? where Id=? AND ShopUserId=?");
 
 
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
@@ -427,11 +427,7 @@ class Users{
     }
     public function delete_product_type(){
         $product_delete_type_query = "DELETE FROM ".$this->product_type_tbl."  Where Id=? and ShopUserId=? ";
-
-
         $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
-
-
         $product_delete_type_obj->bind_param("ss",  $this->product_category_id, $this->product_category_shop_user_id);
         if($product_delete_type_obj->execute()){
             return true;
@@ -583,6 +579,22 @@ class Users{
         }
 
     }
+    public function getProduct(){
+        $products_query=("Select * from product where  ShopUserId=?  LIMIT? OFFSET?");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $products_query_obj->bind_param("sss",$this->user_id,$this->limit,$offset_page);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getProductCategoryTypeExtraSearch(){
         $categorys_query=("Select * from product_category_type where  ShopUserId=? AND NAME LIKE ?");
         $categorys_query_obj = $this->conn->prepare($categorys_query);
@@ -593,6 +605,32 @@ class Users{
             while ($item=$data->fetch_assoc())
                 $units[]=$item;
             return $units;
+        }
+
+    }
+    public function getSupplier(){
+        $suppliers_query=("Select * from supplier where  ShopUserId=? AND Status=1");
+        $suppliers_query_obj = $this->conn->prepare($suppliers_query);
+        $suppliers_query_obj->bind_param("s",$this->user_id);
+        $suppliers=array();
+        if($suppliers_query_obj->execute()){
+            $data = $suppliers_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $suppliers[]=$item;
+            return $suppliers;
+        }
+
+    }
+    public function getProductsCategoryTypes(){
+        $products_query=("Select * from product_category_type where  ShopUserId=? AND Status=1");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products_query_obj->bind_param("s",$this->user_id);
+        $products=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
         }
 
     }
