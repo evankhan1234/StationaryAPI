@@ -608,6 +608,45 @@ class Users{
         }
 
     }
+    public function getSupplierSearch(){
+        $suppliers_query=("Select * from supplier where  ShopUserId=? AND NAME LIKE ?");
+        $suppliers_query_obj = $this->conn->prepare($suppliers_query);
+        $suppliers_query_obj->bind_param("ss",$this->user_id,$this->search);
+        $units=array();
+        if($suppliers_query_obj->execute()){
+            $data = $suppliers_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getPurchaseSearch(){
+        $purchases_query=("Select * from purchase where  ShopUserId=? AND ProductName LIKE ?");
+        $purchases_query_obj = $this->conn->prepare($purchases_query);
+        $purchases_query_obj->bind_param("ss",$this->user_id,$this->search);
+        $units=array();
+        if($purchases_query_obj->execute()){
+            $data = $purchases_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getProductSearch(){
+        $products_query=("Select * from product where  ShopUserId=? AND Name LIKE ?");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products_query_obj->bind_param("ss",$this->user_id,$this->search);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getSupplier(){
         $suppliers_query=("Select * from supplier where  ShopUserId=? AND Status=1");
         $suppliers_query_obj = $this->conn->prepare($suppliers_query);
