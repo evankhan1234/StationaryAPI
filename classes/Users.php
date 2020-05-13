@@ -579,6 +579,20 @@ class Users{
         }
 
     }
+    public function getOrders(){
+        $orders_query=("SELECT o.Id,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1 AND o.ShopId=?");
+        $orderss_query_obj = $this->conn->prepare($orders_query);
+        $orderss_query_obj->bind_param("s",$this->user_id);
+        $orders=array();
+        if($orderss_query_obj->execute()){
+            $data = $orderss_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $orders[]=$item;
+            return $orders;
+        }
+
+    }
+
     public function getProduct(){
         $products_query=("Select * from product where  ShopUserId=?  LIMIT? OFFSET?");
         $products_query_obj = $this->conn->prepare($products_query);
