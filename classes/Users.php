@@ -734,9 +734,9 @@ class Users{
 
     }
     public function getOrderByShop(){
-        $orders_query=("Select * from orderdetails where OrderStatus=1 AND  ShopId=?");
+        $orders_query=("Select * from orderdetails where OrderStatus=1 AND  ShopId=? AND OrderId=?");
         $orders_query_obj = $this->conn->prepare($orders_query);
-        $orders_query_obj->bind_param("s",$this->user_id);
+        $orders_query_obj->bind_param("ss",$this->user_id,$this->orders_order_id);
 
         $products=array();
         if($orders_query_obj->execute()){

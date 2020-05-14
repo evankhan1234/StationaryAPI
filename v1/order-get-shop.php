@@ -21,7 +21,7 @@ $connection = $db->connect();
 
 $user_obj = new Users($connection);
 
-if($_SERVER['REQUEST_METHOD'] === "GET"){
+if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     // body
     $data = json_decode(file_get_contents("php://input"));
@@ -40,7 +40,7 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
 
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
         $user_obj->user_id = $decoded_data->data->Id;
-
+        $user_obj->orders_order_id = $data->OrderId;
         $orders=$user_obj->getOrderByShop();
 
         if($orders){
