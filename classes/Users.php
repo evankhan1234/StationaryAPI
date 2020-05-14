@@ -105,6 +105,25 @@ class Users{
   public $shop_addres;
   public $shop_status;
 
+  public $orders_customer_id;
+  public $orders_shop_id;
+  public $orders_order_id;
+  public $orders_discount;
+  public $orders_grand_total;
+  public $orders_paid_amount;
+  public $orders_due_amount;
+  public $orders_total;
+  public $orders_invoice_number;
+  public $orders_orders_details;
+  public $orders_created;
+  public $orders_delivery_charge;
+  public $orders_status;
+  public $orders_id;
+
+
+
+
+
   private $conn;
   private $users_tbl;
   private $shop_tbl;
@@ -169,11 +188,27 @@ class Users{
     public function create_purchase(){
 
         $purchase_query = "INSERT INTO ".$this->purchase_tbl." SET ProductName = ?, ProductDetails = ?, PurchaseNo = ?, PurchaseDate =?, Stock =?,Item =?, Quantity =?, Rate=?, Discount=?, Total =?,GrandTotal =?, UnitId =?, ShopId=?, Created=?,Status=?,ShopUserId=?";
-
         $purchase_obj = $this->conn->prepare($purchase_query);
         $purchase_obj->bind_param("ssssssssssssssss", $this->purchase_name, $this->purchase_details,$this->purchase_no, $this->purchase_date, $this->purchase_stock, $this->purchase_item, $this->purchase_quantity, $this->purchase_rate, $this->purchase_discount, $this->purchase_total, $this->purchase_grand_total, $this->purchase_unit_id, $this->purchase_shop_id, $this->purchase_created, $this->purchase_status,$this->purchase_shop_user_id);
 
         if($purchase_obj->execute()){
+            return true;
+
+        }
+        else{
+
+            return false;
+        }
+
+        return false;
+    }
+    public function create_delivery(){
+
+        $delivery_query = "INSERT INTO orderdelivery SET CustomerId = ?, ShopId = ?, OrderId = ?, Discount =?, GrandTotal =?,PaidAmount =?, DueAmount =?, Total=?, InvoiceNumber=?, OrderDetails =?,Created =?, DeliveryCharge =?, Status=?";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("sssssssssssss", $this->orders_customer_id, $this->orders_shop_id,$this->orders_order_id, $this->orders_discount, $this->orders_grand_total, $this->orders_paid_amount, $this->orders_due_amount, $this->orders_total, $this->orders_invoice_number, $this->orders_orders_details, $this->orders_created, $this->orders_delivery_charge, $this->orders_status);
+
+        if($delivery_obj->execute()){
             return true;
 
         }
@@ -342,6 +377,17 @@ class Users{
 
         $product_update_type_obj->bind_param("sssss", $this->product_category_name, $this->product_category_status, $this->product_category_shop_id, $this->product_category_created, $this->product_category_id);
         if($product_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_delivery_status(){
+        $delivery_query = "UPDATE orderdelivery SET OrderDetails = ?, Status = ?, DeliveryCharge = ? Where Id=? AND ShopId=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+
+        $delivery_obj->bind_param("sssss", $this->orders_orders_details, $this->orders_status, $this->orders_delivery_charge, $this->orders_id, $this->orders_shop_id);
+        if($delivery_obj->execute()){
             return true;
         }
         return false;
@@ -687,6 +733,34 @@ class Users{
         }
 
     }
+    public function getOrderByShop(){
+        $orders_query=("Select * from orderdetails where OrderStatus=1 AND  ShopId=?");
+        $orders_query_obj = $this->conn->prepare($orders_query);
+        $orders_query_obj->bind_param("s",$this->user_id);
+
+        $products=array();
+        if($orders_query_obj->execute()){
+            $data = $orders_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
+
+    }
+    public function getDeliveryListByShop(){
+        $deliveries_query=("SELECT c.Name,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=?");
+        $deliveries_query_obj = $this->conn->prepare($deliveries_query);
+        $deliveries_query_obj->bind_param("s",$this->user_id);
+
+        $products=array();
+        if($deliveries_query_obj->execute()){
+            $data = $deliveries_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
+
+    }
     public function getSupplierPagination(){
         $suppliers_query=("Select * from supplier where  ShopUserId=?  LIMIT? OFFSET?");
         $suppliers_query_obj = $this->conn->prepare($suppliers_query);
@@ -837,6 +911,21 @@ class Users{
         $email_query = "SELECT * from ".$this->purchase_tbl." WHERE ProductName = ? ";
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("s", $this->purchase_name);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_delivery(){
+
+        $query = "SELECT * from orderdelivery WHERE InvoiceNumber = ? ";
+        $usr_obj = $this->conn->prepare($query);
+        $usr_obj->bind_param("s", $this->orders_invoice_number);
 
         if($usr_obj->execute()){
 
