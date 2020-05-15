@@ -118,10 +118,11 @@ class Users{
   public $orders_created;
   public $orders_delivery_charge;
   public $orders_status;
+  public $orders_quantity;
   public $orders_id;
 
-
-
+  public $orders_details_id;
+  public $orders_details_shop_id;
 
 
   private $conn;
@@ -393,6 +394,37 @@ class Users{
         return false;
 
     }
+    public function update_customer_order_status(){
+        $delivery_query = "UPDATE orders SET Status = ? Where Id=? AND ShopId=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+
+        $delivery_obj->bind_param("sss", $this->orders_status, $this->orders_id, $this->orders_shop_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_customer_order_status_details(){
+        $delivery_query = "UPDATE orderdetails SET OrderStatus = ? Where Id=? AND ShopId=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("sss", $this->orders_status, $this->orders_id, $this->orders_shop_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_customer_order_quantity(){
+        $delivery_query = "UPDATE orderdetails SET Quantity = ? Where Id=? AND ShopId=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("sss", $this->orders_quantity, $this->orders_id, $this->orders_shop_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     function updateAvatar(){
         return $result=$this->conn->query("Update ".$this->users_tbl." set Picture='$this->user_image' where Id='$this->user_id'");
 
@@ -475,6 +507,16 @@ class Users{
         $product_delete_type_query = "DELETE FROM ".$this->product_type_tbl."  Where Id=? and ShopUserId=? ";
         $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
         $product_delete_type_obj->bind_param("ss",  $this->product_category_id, $this->product_category_shop_user_id);
+        if($product_delete_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function delete_customer_order_items(){
+        $product_delete_type_query = "DELETE FROM orderdetails  Where Id=? and ShopId=? ";
+        $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
+        $product_delete_type_obj->bind_param("ss",  $this->orders_details_id, $this->orders_details_shop_id);
         if($product_delete_type_obj->execute()){
             return true;
         }
@@ -625,8 +667,24 @@ class Users{
         }
 
     }
+    public function getDeliveriesPagination(){
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? LIMIT? OFFSET?");
+        $deliveries_query_obj = $this->conn->prepare($deliveries_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $deliveries_query_obj->bind_param("sss",$this->user_id,$this->limit,$offset_page);
+        $units=array();
+        if($deliveries_query_obj->execute()){
+            $data = $deliveries_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getOrders(){
-        $orders_query=("SELECT o.Id,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1 AND o.ShopId=?");
+        $orders_query=("SELECT o.Id, o.CustomerId,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1 AND o.ShopId=?");
         $orderss_query_obj = $this->conn->prepare($orders_query);
         $orderss_query_obj->bind_param("s",$this->user_id);
         $orders=array();
@@ -748,7 +806,7 @@ class Users{
 
     }
     public function getDeliveryListByShop(){
-        $deliveries_query=("SELECT c.Name,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=?");
+        $deliveries_query=("SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=?");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $deliveries_query_obj->bind_param("s",$this->user_id);
 
