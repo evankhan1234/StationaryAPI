@@ -29,11 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
         $user_obj->user_email = $data->Email;
         $user_obj->user_password = md5($data->Password);
-        $user_obj->user_mobile = $data->OwnerMobileNumber;
-        $user_data = $user_obj->check_login_details();
+        $user_data = $user_obj->check_customer_login_details();
         $md5 = md5($data->Password);
         if ($user_data != null) { // normal password, hashed password
-            $name = $user_data['OwnerName'];
+            $name = $user_data['Name'];
             $email = $user_data['Email'];
             $password = $user_data['Password'];
             $iss = "localhost";
@@ -43,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $aud = "myusers";
             $user_arr_data = array(
                 "Id" => $user_data['Id'],
-                "OwnerName" => $user_data['OwnerName'],
+                "Name" => $user_data['Name'],
                 "Email" => $user_data['Email']
             );
 
@@ -59,11 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             );
 
             $jwt = JWT::encode($payload_info, $secret_key, 'HS512');
-            $datas = $user_obj->check_email();
+            $datas = $user_obj->check_email_customer_for();
 
             $user_obj->user_shop_id= $datas['Id'];
 
-            $shop_id = $user_obj->check_shop_id();
             $Status = $datas["Status"];
             if ($Status == 0) {
                 echo json_encode(array(
@@ -79,7 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     "success" => true,
                     "jwt" => $jwt,
                     "data" => $datas,
-                    "shopId" => $shop_id,
                     "message" => "User logged in successfully"
                 ));
             }

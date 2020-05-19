@@ -77,9 +77,12 @@ class Users{
   public $customer_picture;
   public $customer_created;
   public $customer_status;
+  public $customer_gender;
   public $user_id;
   public $limit;
   public $search;
+  public $latitude;
+  public $longitude;
   public $page;
   public $user_image;
 
@@ -169,18 +172,14 @@ class Users{
     return false;
   }
     public function create_customer(){
-
-        $customer_query = "INSERT INTO ".$this->customer_users_tbl." SET Name = ?, Email = ?, Password = ?, MobileNumber =?, Address =?,CreatedBy =?, Status =?, Picture=?, Created=?";
-
+        $customer_query = "INSERT INTO ".$this->customer_users_tbl." SET Name = ?, Email = ?, Password = ?, MobileNumber =?, Address =?, Status =?, Picture=?, Created=?, Gender=?";
         $customer_obj = $this->conn->prepare($customer_query);
-        $customer_obj->bind_param("sssssssss", $this->customer_name, $this->customer_email,$this->customer_password, $this->customer_mobile_number, $this->customer_address, $this->user_id, $this->customer_status, $this->customer_picture, $this->customer_created);
+        $customer_obj->bind_param("sssssssss", $this->customer_name, $this->customer_email,$this->customer_password, $this->customer_mobile_number, $this->customer_address,$this->customer_status, $this->customer_picture, $this->customer_created, $this->customer_gender);
 
         if($customer_obj->execute()){
             return true;
-
         }
         else{
-
             return false;
         }
 
@@ -668,7 +667,7 @@ class Users{
 
     }
     public function getDeliveriesPagination(){
-        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? LIMIT? OFFSET?");
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? LIMIT? OFFSET?");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -752,6 +751,34 @@ class Users{
         }
 
     }
+    public function getShopSearch(){
+        $purchases_query=("Select * from shop where  Status=1 AND Name LIKE ?");
+        $purchases_query_obj = $this->conn->prepare($purchases_query);
+        $purchases_query_obj->bind_param("s",$this->search);
+        $units=array();
+        if($purchases_query_obj->execute()){
+            $data = $purchases_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getShopNearBy(){
+        $purchases_query=("SELECT Id,Name,Address,LicenseNumber,Status,ShopUserId,Created,Latitude,Longitude, ( 3959 * ACOS( COS( RADIANS(?) ) * COS( RADIANS( Latitude ) )* COS( RADIANS( Longitude ) - RADIANS(?) ) + SIN( RADIANS(?) ) * SIN( RADIANS( Latitude ) ) ) ) AS distance FROM shop WHERE STATUS=1 HAVING distance < 25 ORDER BY distance LIMIT ? OFFSET ?");
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $purchases_query_obj = $this->conn->prepare($purchases_query);
+        $purchases_query_obj->bind_param("sssss",$this->latitude,$this->longitude,$this->latitude,$this->limit,$offset_page);
+        $units=array();
+        if($purchases_query_obj->execute()){
+            $data = $purchases_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getProductSearch(){
         $products_query=("Select * from product where  ShopUserId=? AND Name LIKE ?");
         $products_query_obj = $this->conn->prepare($products_query);
@@ -788,6 +815,30 @@ class Users{
             while ($item=$data->fetch_assoc())
                 $products[]=$item;
             return $products;
+        }
+
+    }
+    public function getCustomerAllShops(){
+        $result= $this->conn->query("Select * from shop Where Status=1");
+        $shops=array();
+        while ($item=$result->fetch_assoc())
+            $shops[]=$item;
+        return $shops;
+
+    }
+    public function getCustomerAllShopsPagination(){
+        $shops_query=("Select * from shop where  Status=1  LIMIT? OFFSET?");
+        $shops_query_obj = $this->conn->prepare($shops_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $shops_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $units=array();
+        if($shops_query_obj->execute()){
+            $data = $shops_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
         }
 
     }
@@ -853,16 +904,24 @@ class Users{
     }
     public function check_email(){
 
-        //$email_query = "SELECT * from ".$this->users_tbl." WHERE Email = ?";
         $email_query = "Select * from ".$this->users_tbl." WHERE (Email = ? ) OR ( OwnerMobileNumber = ?)";
-
-
-//        $email_query = "Select * from ".$this->users_tbl." WHERE
-//  (Email = ? AND Password = ?) OR
-//  (Password = ? AND OwnerMobileNumber = ?)";
-
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->user_email,$this->user_mobile);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_email_customer_for(){
+
+        $email_query = "Select * from ".$this->customer_users_tbl." WHERE Email=?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("s", $this->user_email);
 
         if($usr_obj->execute()){
 
@@ -913,22 +972,24 @@ class Users{
         return array();
     }
     public function check_login_details(){
-
-
-
         $email_query = "Select * from ".$this->users_tbl." WHERE
   (Email = ? AND Password = ?) OR
   (Password = ? AND OwnerMobileNumber = ?)";
-
-
         $usr_obj = $this->conn->prepare($email_query);
-
         $usr_obj->bind_param("ssss", $this->user_email,$this->user_password,$this->user_password,$this->user_mobile);
-
         if($usr_obj->execute()){
-
             $data = $usr_obj->get_result();
+            return $data->fetch_assoc();
+        }
 
+        return array();
+    }
+    public function check_customer_login_details(){
+        $email_query = "Select * from ".$this->customer_users_tbl." WHERE Email = ? AND Password = ?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->user_email,$this->user_password);
+        if($usr_obj->execute()){
+            $data = $usr_obj->get_result();
             return $data->fetch_assoc();
         }
 
@@ -951,9 +1012,9 @@ class Users{
     }
     public function check_product(){
 
-        $product_query = "SELECT * from ".$this->product_tbl." WHERE Name = ?";
+        $product_query = "SELECT * from ".$this->product_tbl." WHERE Name = ? AND ShopUserId=?";
         $product_obj = $this->conn->prepare($product_query);
-        $product_obj->bind_param("s", $this->product_name);
+        $product_obj->bind_param("ss", $this->product_name,$this->product_shop_user_id);
 
         if($product_obj->execute()){
 
@@ -966,9 +1027,9 @@ class Users{
     }
     public function check_purchase(){
 
-        $email_query = "SELECT * from ".$this->purchase_tbl." WHERE ProductName = ? ";
+        $email_query = "SELECT * from ".$this->purchase_tbl." WHERE ProductName = ? AND ShopUserId=?";
         $usr_obj = $this->conn->prepare($email_query);
-        $usr_obj->bind_param("s", $this->purchase_name);
+        $usr_obj->bind_param("ss", $this->purchase_name,$this->purchase_shop_user_id);
 
         if($usr_obj->execute()){
 
@@ -996,9 +1057,9 @@ class Users{
     }
     public function check_email_supplier(){
 
-        $email_query = "SELECT * from ".$this->supplier_tbl." WHERE (Email = ? ) OR ( ContactNumber = ?)";
+        $email_query = "SELECT * from ".$this->supplier_tbl." WHERE ContactNumber = ? AND ShopUserId=?";
         $usr_obj = $this->conn->prepare($email_query);
-        $usr_obj->bind_param("ss", $this->supplier_email, $this->supplier_contact_number);
+        $usr_obj->bind_param("ss",  $this->supplier_contact_number,$this->supplier_shop_user_id);
 
         if($usr_obj->execute()){
 
