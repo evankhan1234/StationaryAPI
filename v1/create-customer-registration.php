@@ -27,18 +27,11 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
     $data = json_decode(file_get_contents("php://input"));
 
 
-    $headers = getallheaders();
+
 
     if(!empty($data->Name) && !empty($data->Password)){
 
-        try{
 
-            $jwt = $headers["Authorization"];
-
-            $secret_key = "owt125";
-           $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-
-            $user_obj->user_id = $decoded_data->data->Id;
             $user_obj->customer_name = $data->Name;
             $user_obj->customer_email = $data->Email;
             $user_obj->customer_picture = $data->Picture;
@@ -46,6 +39,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $user_obj->customer_address = $data->Address;
             $user_obj->customer_mobile_number = $data->MobileNumber;
             $user_obj->customer_status = $data->Status;
+            $user_obj->customer_gender = $data->Gender;
             $user_obj->customer_password = md5($data->Password);
 
             $email_data = $user_obj->check_email_customer();
@@ -78,14 +72,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                     ));
                 }
             }
-        }catch (Exception $ex){
-            http_response_code(500); //server error
-            echo json_encode(array(
-                "status" => 501,
-                "success" => false,
-                "message" => $ex->getMessage()
-            ));
-        }
+
 
 
     }
