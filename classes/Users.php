@@ -666,6 +666,20 @@ class Users{
         }
 
     }
+    public function getCustomerProductCategory(){
+        $categorys_query=("Select * from product_category_type where Status=1 AND ShopUserId=?");
+        $categorys_query_obj = $this->conn->prepare($categorys_query);
+        $categorys_query_obj->bind_param("s",$this->shop_user_id);
+        $units=array();
+        if($categorys_query_obj->execute()){
+            $data = $categorys_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getDeliveriesPagination(){
         $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? LIMIT? OFFSET?");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
@@ -773,6 +787,34 @@ class Users{
         $units=array();
         if($purchases_query_obj->execute()){
             $data = $purchases_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getCustomerProductCategoryType(){
+        $products_query=("SELECT * FROM product WHERE  STATUS=1 AND ShopUserId=? AND ProductCategoryId=? LIMIT ? OFFSET ?");
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products_query_obj->bind_param("ssss",$this->shop_user_id,$this->product_category_id,$this->limit,$offset_page);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getCustomerProductCategorySearch(){
+        $products_query=("Select * from product where  ShopUserId=? AND ProductCategoryId=? AND Name LIKE ?");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products_query_obj->bind_param("sss",$this->shop_user_id,$this->product_category_id,$this->search);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
             while ($item=$data->fetch_assoc())
                 $units[]=$item;
             return $units;
