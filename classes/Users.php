@@ -81,6 +81,8 @@ class Users{
   public $user_id;
   public $limit;
   public $search;
+  public $latitude;
+  public $longitude;
   public $page;
   public $user_image;
 
@@ -749,6 +751,34 @@ class Users{
         }
 
     }
+    public function getShopSearch(){
+        $purchases_query=("Select * from shop where  Status=1 AND Name LIKE ?");
+        $purchases_query_obj = $this->conn->prepare($purchases_query);
+        $purchases_query_obj->bind_param("s",$this->search);
+        $units=array();
+        if($purchases_query_obj->execute()){
+            $data = $purchases_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getShopNearBy(){
+        $purchases_query=("SELECT Id,Name,Address,LicenseNumber,Status,ShopUserId,Created,Latitude,Longitude, ( 3959 * ACOS( COS( RADIANS(?) ) * COS( RADIANS( Latitude ) )* COS( RADIANS( Longitude ) - RADIANS(?) ) + SIN( RADIANS(?) ) * SIN( RADIANS( Latitude ) ) ) ) AS distance FROM shop WHERE STATUS=1 HAVING distance < 25 ORDER BY distance LIMIT ? OFFSET ?");
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $purchases_query_obj = $this->conn->prepare($purchases_query);
+        $purchases_query_obj->bind_param("sssss",$this->latitude,$this->longitude,$this->latitude,$this->limit,$offset_page);
+        $units=array();
+        if($purchases_query_obj->execute()){
+            $data = $purchases_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getProductSearch(){
         $products_query=("Select * from product where  ShopUserId=? AND Name LIKE ?");
         $products_query_obj = $this->conn->prepare($products_query);
@@ -794,6 +824,22 @@ class Users{
         while ($item=$result->fetch_assoc())
             $shops[]=$item;
         return $shops;
+
+    }
+    public function getCustomerAllShopsPagination(){
+        $shops_query=("Select * from shop where  Status=1  LIMIT? OFFSET?");
+        $shops_query_obj = $this->conn->prepare($shops_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $shops_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $units=array();
+        if($shops_query_obj->execute()){
+            $data = $shops_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
 
     }
     public function getOrderByShop(){

@@ -39,9 +39,11 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
         $secret_key = "owt125";
 
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
+        $user_obj->latitude = $data->Latitude;
+        $user_obj->longitude = $data->Longititude;
         $user_obj->limit = $data->limit;
         $user_obj->page = $data->page;
-        $shops=$user_obj->getCustomerAllShopsPagination();
+        $shops=$user_obj->getShopNearBy();
 
         if($shops){
 
@@ -50,7 +52,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                 "status" => 200,
                 "success" => true,
                 "data" => $shops,
-                "message" => "Shop Found"
+                "message" => "Shops Found"
             ));
         }else{
 
@@ -60,7 +62,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                 "status" => 200,
                 "success" => true,
                 "data" => $shops,
-                "message" => "No Shop Found"
+                "message" => "No Shops Found"
             ));
         }
     }catch(Exception $ex){
