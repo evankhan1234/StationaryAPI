@@ -794,7 +794,7 @@ class Users{
 
     }
     public function getCustomerProductCategoryType(){
-        $products_query=("SELECT * FROM product WHERE  STATUS=1 AND ShopUserId=? AND ProductCategoryId=? LIMIT ? OFFSET ?");
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=? AND p.ProductCategoryId=? LIMIT ? OFFSET ?");
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
         $products_query_obj = $this->conn->prepare($products_query);
@@ -809,7 +809,7 @@ class Users{
 
     }
     public function getCustomerProductCategorySearch(){
-        $products_query=("Select * from product where  ShopUserId=? AND ProductCategoryId=? AND Name LIKE ?");
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=? AND p.ProductCategoryId=? AND p.Name LIKE ?");
         $products_query_obj = $this->conn->prepare($products_query);
         $products_query_obj->bind_param("sss",$this->shop_user_id,$this->product_category_id,$this->search);
         $units=array();
