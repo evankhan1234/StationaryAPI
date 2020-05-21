@@ -107,6 +107,12 @@ class Users{
   public $shop_license_number;
   public $shop_addres;
   public $shop_status;
+  public $wish_list_id;
+  public $wish_list_product_id;
+  public $wish_list_customer_id;
+  public $wish_list_status;
+  public $wish_list_created;
+  public $wish_list_shop_user_id;
 
   public $orders_customer_id;
   public $orders_shop_id;
@@ -371,6 +377,21 @@ class Users{
         return false;
 
     }
+    public function create_wish_list(){
+
+
+        $wish_query = "INSERT into wishlist SET ProductId = ?, Status = ?, CustomerId = ?, Created = ?,ShopUserId=?";
+
+        $wish_obj = $this->conn->prepare($wish_query);
+
+        $wish_obj->bind_param("sssss", $this->wish_list_product_id, $this->wish_list_status, $this->wish_list_customer_id, $this->wish_list_created, $this->wish_list_shop_user_id);
+        if($wish_obj->execute()){
+            return true;
+        }
+
+        return false;
+
+    }
     public function update_product_type(){
         $product_update_type_query = "UPDATE product_category_type SET Name = ?, Status = ?, ShopId = ?, created = ? Where Id=?";
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
@@ -558,12 +579,40 @@ class Users{
         return false;
 
     }
+    public function delete_wish_list(){
+        $delete_type_query = "DELETE FROM wishlist Where Id=? AND ProductId =?  AND CustomerId=? AND ShopUserId=? ";
+        $delete_type_obj = $this->conn->prepare($delete_type_query);
+
+
+        $delete_type_obj->bind_param("ssss", $this->wish_list_id,$this->wish_list_product_id, $this->wish_list_customer_id,$this->wish_list_shop_user_id);
+        if($delete_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     public function getShopUserInformation(){
 
         $shop_user_details_query=("Select * from ".$this->users_tbl." as u inner join ".$this->shop_tbl." as s on  u.Id =s.ShopUserId where u.Id=?");
         json_encode($shop_user_details_query);
         $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
         $shop_user_details_obj->bind_param("s",$this->user_id);
+        if($shop_user_details_obj->execute()){
+            $data = $shop_user_details_obj->get_result();
+
+            return $data->fetch_assoc();
+            return $data;
+        }
+        return NULL;
+
+
+    }
+    public function getProductLike(){
+
+        $shop_user_details_query=("Select * from wishlist  where ProductId=? AND CustomerId=? AND ShopUserId=?");
+        json_encode($shop_user_details_query);
+        $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
+        $shop_user_details_obj->bind_param("sss",$this->wish_list_product_id, $this->wish_list_customer_id,$this->wish_list_shop_user_id);
         if($shop_user_details_obj->execute()){
             $data = $shop_user_details_obj->get_result();
 
@@ -631,7 +680,6 @@ class Users{
     public function getProductCategoryType(){
 
         $categorys_query=("Select * from product_category_type where  ShopUserId=?");
-
         $categorys_query_obj = $this->conn->prepare($categorys_query);
 
         $categorys_query_obj->bind_param("s",$this->user_id);
@@ -645,11 +693,22 @@ class Users{
         }
 
 
+    }
+    public function getWishList(){
 
+        $wish_query=("SELECT p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName,w.Id as WishId FROM wishlist AS w INNER JOIN product AS p ON w.ProductId=p.Id INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  w.Status=1 AND  w.CustomerId=? AND w.ShopUserId=?");
+        $wish_query_obj = $this->conn->prepare($wish_query);
+        $wish_query_obj->bind_param("ss",$this->wish_list_customer_id,$this->wish_list_shop_user_id);
+        $units=array();
+        if($wish_query_obj->execute()){
+            $data = $wish_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
 
 
     }
-
     public function getProductCategoryTypeExtra(){
         $categorys_query=("Select * from product_category_type where  ShopUserId=?  LIMIT? OFFSET?");
         $categorys_query_obj = $this->conn->prepare($categorys_query);
@@ -1061,6 +1120,21 @@ class Users{
         if($product_obj->execute()){
 
             $data = $product_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_wish_list(){
+
+        $wish_query = "SELECT * from wishlist WHERE ProductId =?  AND CustomerId=? AND ShopUserId=?";
+        $wish_obj = $this->conn->prepare($wish_query);
+        $wish_obj->bind_param("sss", $this->wish_list_product_id, $this->wish_list_customer_id,$this->wish_list_shop_user_id);
+
+        if($wish_obj->execute()){
+
+            $data = $wish_obj->get_result();
 
             return $data->fetch_assoc();
         }

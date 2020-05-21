@@ -29,51 +29,39 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     $headers = getallheaders();
 
-
-    if(!empty($data->Name)){
+    if(!empty($data->ProductId) && !empty($data->ShopUserId)){
 
         try{
 
             $jwt = $headers["Authorization"];
 
             $secret_key = "owt125";
+
             $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
+            $user_obj->wish_list_customer_id = $decoded_data->data->Id;
 
-            $user_obj->product_shop_user_id = $decoded_data->data->Id;
-            $user_obj->product_name = $data->Name;
-            $user_obj->product_details = $data->Details;
-            $user_obj->product_code = $data->ProductCode;
-            $user_obj->product_image = $data->ProductImage;
-            $user_obj->product_sell_price= $data->SellPrice;
-            $user_obj->product_supplier_price = $data->SupplierPrice;
-            $user_obj->product_supplier_id= $data->SupplierId;
-            $user_obj->product_discount = $data->Discounts;
-            $user_obj->product_unit_id = $data->UnitId;
-            $user_obj->product_shop_id = $data->ShopId;
-            $user_obj->product_stock = $data->Stock;
-            $user_obj->product_created = $data->Created;
-            $user_obj->product_status = $data->Status;
-            $user_obj->product_category_type_id = $data->ProductCategoryId;
-
-            $email_data = $user_obj->check_product();
-
+            $user_obj->wish_list_product_id = $data->ProductId;
+            $user_obj->wish_list_status = $data->Status;
+            $user_obj->wish_list_shop_user_id= $data->ShopUserId;
+            $user_obj->wish_list_created = $data->Created;
+            $email_data = $user_obj->check_wish_list();
             if (!empty($email_data))
             {
                 // some data we have - insert should not go
                 http_response_code(500);
                 echo json_encode(array(
                     "status" => 201,
-                    "message" => "Product already exists"
+                    "message" => "WishList already exists"
                 ));
             } else {
 
-                if ($user_obj->create_product()) {
+                if ($user_obj->create_wish_list()) {
 
                     http_response_code(200);
                     echo json_encode(array(
                         "status" => 200,
                         "success" => true,
-                        "message" => "Product  has been created"
+                        "message" => "WishList  has been created"
 
                     ));
                 } else {
@@ -82,11 +70,12 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                     echo json_encode(array(
                         "status" => 500,
                         "success" => false,
-                        "message" => "Failed to save Product"
+                        "message" => "Failed to save WishList"
                     ));
                 }
             }
-        }catch (Exception $ex){
+        }catch(Exception $ex){
+
             http_response_code(500); //server error
             echo json_encode(array(
                 "status" => 501,
@@ -94,18 +83,15 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
                 "message" => $ex->getMessage()
             ));
         }
+    }else{
 
-
+        http_response_code(404); // not found
+        echo json_encode(array(
+            "status" => 503,
+            "success" => false,
+            "message" => "All data needed"
+        ));
     }
-
-
-}else{
-
-    http_response_code(503);
-    echo json_encode(array(
-        "status" => 0,
-        "message" => "Access Denied"
-    ));
 }
 
 ?>
