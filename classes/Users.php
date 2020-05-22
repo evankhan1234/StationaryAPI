@@ -113,6 +113,15 @@ class Users{
   public $wish_list_status;
   public $wish_list_created;
   public $wish_list_shop_user_id;
+  public $cart_list_shop_user_id;
+  public $cart_list_customer_id;
+  public $cart_list_product_id;
+  public $cart_list_status;
+  public $cart_list_created;
+  public $cart_list_picture;
+  public $cart_list_price;
+  public $cart_list_quantity;
+  public $cart_list_name;
 
   public $orders_customer_id;
   public $orders_shop_id;
@@ -268,13 +277,11 @@ class Users{
     }
     public function create_order_details(){
 
-        $product_querys = "INSERT INTO ".$this->order_details_tbl." SET Name = ?, CustomerId = ?, Created = ?, Quantity =?, Price =?,ProductId =?, Item =?,Picture =?, OrderId =?, OrderStatus=?,ShopId=?";
-
+        $product_querys = "INSERT INTO ".$this->order_details_tbl." SET Name = ?, CustomerId = ?, Created = ?, Quantity =?, Price =?,ProductId =?,Picture =?, OrderId =?, OrderStatus=?,ShopId=?";
 
         $product_objs = $this->conn->prepare($product_querys);
 
-
-        $product_objs->bind_param("sssssssssss", $this->order_details_name, $this->order_details_customer_id,$this->order_details_created, $this->order_details_quantity, $this->order_details_price, $this->order_details_product_id, $this->order_details_item, $this->order_details_picture, $this->order_id, $this->order_details_status, $this->order_details_shop_id);
+        $product_objs->bind_param("ssssssssss", $this->order_details_name, $this->order_details_customer_id,$this->order_details_created, $this->order_details_quantity, $this->order_details_price, $this->order_details_product_id, $this->order_details_picture, $this->order_id, $this->order_details_status, $this->order_details_shop_id);
 
         if($product_objs->execute()){
             return true;
@@ -285,7 +292,7 @@ class Users{
             return false;
         }
 
-        return false;
+
     }
     public function create_supplier(){
 
@@ -378,19 +385,22 @@ class Users{
 
     }
     public function create_wish_list(){
-
-
         $wish_query = "INSERT into wishlist SET ProductId = ?, Status = ?, CustomerId = ?, Created = ?,ShopUserId=?";
-
         $wish_obj = $this->conn->prepare($wish_query);
-
         $wish_obj->bind_param("sssss", $this->wish_list_product_id, $this->wish_list_status, $this->wish_list_customer_id, $this->wish_list_created, $this->wish_list_shop_user_id);
         if($wish_obj->execute()){
             return true;
         }
-
         return false;
-
+    }
+    public function create_cart_list(){
+        $wish_query = "INSERT into cart SET ProductName = ?,Price = ?,Quantity = ?,Picture = ?,ProductId = ?, Status = ?, CustomerId = ?, Created = ?,ShopUserId=?";
+        $wish_obj = $this->conn->prepare($wish_query);
+        $wish_obj->bind_param("sssssssss", $this->cart_list_name, $this->cart_list_price, $this->cart_list_quantity,$this->cart_list_picture, $this->cart_list_product_id, $this->cart_list_status, $this->cart_list_customer_id, $this->cart_list_created, $this->cart_list_shop_user_id);
+        if($wish_obj->execute()){
+            return true;
+        }
+        return false;
     }
     public function update_product_type(){
         $product_update_type_query = "UPDATE product_category_type SET Name = ?, Status = ?, ShopId = ?, created = ? Where Id=?";
@@ -439,6 +449,16 @@ class Users{
         $delivery_query = "UPDATE orderdetails SET Quantity = ? Where Id=? AND ShopId=? ";
         $delivery_obj = $this->conn->prepare($delivery_query);
         $delivery_obj->bind_param("sss", $this->orders_quantity, $this->orders_id, $this->orders_shop_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_cart_quantity(){
+        $delivery_query = "UPDATE cart SET Quantity =? Where ProductId=? AND CustomerId=? AND ShopUserId=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("ssss", $this->cart_list_quantity, $this->cart_list_product_id, $this->cart_list_customer_id, $this->cart_list_shop_user_id);
         if($delivery_obj->execute()){
             return true;
         }
@@ -583,8 +603,18 @@ class Users{
         $delete_type_query = "DELETE FROM wishlist Where Id=? AND ProductId =?  AND CustomerId=? AND ShopUserId=? ";
         $delete_type_obj = $this->conn->prepare($delete_type_query);
 
-
         $delete_type_obj->bind_param("ssss", $this->wish_list_id,$this->wish_list_product_id, $this->wish_list_customer_id,$this->wish_list_shop_user_id);
+        if($delete_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function delete_wish_list_product(){
+        $delete_type_query = "DELETE FROM wishlist Where  ProductId =?  AND CustomerId=? AND ShopUserId=? ";
+        $delete_type_obj = $this->conn->prepare($delete_type_query);
+
+        $delete_type_obj->bind_param("sss",$this->wish_list_product_id, $this->wish_list_customer_id,$this->wish_list_shop_user_id);
         if($delete_type_obj->execute()){
             return true;
         }
@@ -695,8 +725,7 @@ class Users{
 
     }
     public function getWishList(){
-
-        $wish_query=("SELECT p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName,w.Id as WishId FROM wishlist AS w INNER JOIN product AS p ON w.ProductId=p.Id INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  w.Status=1 AND  w.CustomerId=? AND w.ShopUserId=?");
+        $wish_query=("SELECT p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName,w.Id as WishId,w.Created as Date FROM wishlist AS w INNER JOIN product AS p ON w.ProductId=p.Id INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  w.Status=1 AND  w.CustomerId=? AND w.ShopUserId=?");
         $wish_query_obj = $this->conn->prepare($wish_query);
         $wish_query_obj->bind_param("ss",$this->wish_list_customer_id,$this->wish_list_shop_user_id);
         $units=array();
@@ -706,8 +735,18 @@ class Users{
                 $units[]=$item;
             return $units;
         }
-
-
+    }
+    public function getCartList(){
+        $cart_query=("SELECT p.Name,c.Quantity,c.Price,c.ProductId,c.Picture,c.Created FROM cart AS c INNER JOIN product AS p ON c.ProductId=p.Id  WHERE  c.Status=1 AND c.ShopUserId=? AND c.CustomerId=? ");
+        $cart_query_obj = $this->conn->prepare($cart_query);
+        $cart_query_obj->bind_param("ss",$this->cart_list_shop_user_id,$this->cart_list_customer_id);
+        $units=array();
+        if($cart_query_obj->execute()){
+            $data = $cart_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
     }
     public function getProductCategoryTypeExtra(){
         $categorys_query=("Select * from product_category_type where  ShopUserId=?  LIMIT? OFFSET?");
@@ -1139,6 +1178,16 @@ class Users{
             return $data->fetch_assoc();
         }
 
+        return array();
+    }
+    public function check_cart_list(){
+        $cart_query = "SELECT * from cart WHERE ProductId =?  AND CustomerId=? AND ShopUserId=?";
+        $cart_obj = $this->conn->prepare($cart_query);
+        $cart_obj->bind_param("sss", $this->cart_list_product_id, $this->cart_list_customer_id,$this->cart_list_shop_user_id);
+        if($cart_obj->execute()){
+            $data = $cart_obj->get_result();
+            return $data->fetch_assoc();
+        }
         return array();
     }
     public function check_purchase(){

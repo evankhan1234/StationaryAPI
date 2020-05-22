@@ -21,8 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $jwt = $headers["Authorization"];
         $secret_key = "owt125";
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-       // $user_obj->order_customer_id = $decoded_data->data->Id;
-        $user_obj->order_customer_id = $data->CustomerId;
+        $user_obj->order_customer_id = $decoded_data->data->Id;
         $user_obj->order_shop_id = $data->ShopId;
         $user_obj->order_created = $data->Created;
         $user_obj->order_status = $data->Status;
@@ -43,11 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $user_obj->order_details_quantity = $val->Quantity;
                 $user_obj->order_details_price = $val->Price;
                 $user_obj->order_details_product_id = $val->ProductId;
-                $user_obj->order_details_item = $val->Item;
                 $user_obj->order_details_status = $val->OrderStatus;
                 $user_obj->order_details_shop_id = $val->ShopId;
                 $user_obj->order_details_picture = $val->Picture;
-                $user_obj->order_details_customer_id = $data->CustomerId;;
+                $user_obj->order_details_customer_id = $decoded_data->data->Id;
                 if($user_obj->create_order_details()){
                 }
             }
