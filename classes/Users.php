@@ -445,6 +445,16 @@ class Users{
         return false;
 
     }
+    public function update_cart_order_status_details(){
+        $cart_query = "UPDATE cart SET Status = ? Where ProductId=? AND ShopUserId=? AND CustomerId=? ";
+        $cart_obj = $this->conn->prepare($cart_query);
+        $cart_obj->bind_param("ssss", $this->cart_list_status, $this->cart_list_product_id, $this->cart_list_shop_user_id, $this->cart_list_customer_id);
+        if($cart_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     public function update_customer_order_quantity(){
         $delivery_query = "UPDATE orderdetails SET Quantity = ? Where Id=? AND ShopId=? ";
         $delivery_obj = $this->conn->prepare($delivery_query);
@@ -558,6 +568,16 @@ class Users{
         $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
         $product_delete_type_obj->bind_param("ss",  $this->orders_details_id, $this->orders_details_shop_id);
         if($product_delete_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function delete_cart_order_items(){
+        $cart_delete_type_query = "DELETE FROM cart Where ProductId=? AND ShopUserId=? AND CustomerId=?";
+        $cart_delete_type_obj = $this->conn->prepare($cart_delete_type_query);
+        $cart_delete_type_obj->bind_param("sss",  $this->cart_list_product_id, $this->cart_list_shop_user_id, $this->cart_list_customer_id);
+        if($cart_delete_type_obj->execute()){
             return true;
         }
         return false;
