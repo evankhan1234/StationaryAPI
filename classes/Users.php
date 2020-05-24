@@ -658,9 +658,7 @@ class Users{
 
     }
     public function getProductLike(){
-
         $shop_user_details_query=("Select * from wishlist  where ProductId=? AND CustomerId=? AND ShopUserId=?");
-        json_encode($shop_user_details_query);
         $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
         $shop_user_details_obj->bind_param("sss",$this->wish_list_product_id, $this->wish_list_customer_id,$this->wish_list_shop_user_id);
         if($shop_user_details_obj->execute()){
@@ -670,8 +668,26 @@ class Users{
             return $data;
         }
         return NULL;
-
-
+    }
+    public function getWishListCount(){
+        $wish_lists_query=("SELECT Count(*) as Counts from wishlist Where  Status=1  AND CustomerId=? AND ShopUserId=?");
+        $wish_lists_obj = $this->conn->prepare($wish_lists_query);
+        $wish_lists_obj->bind_param("ss", $this->wish_list_customer_id,$this->wish_list_shop_user_id);
+        if($wish_lists_obj->execute()){
+            $data = $wish_lists_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
+    public function getCartListCount(){
+        $wish_lists_query=("SELECT Count(*) as Counts from cart Where  Status=1  AND CustomerId=? AND ShopUserId=?");
+        $wish_lists_obj = $this->conn->prepare($wish_lists_query);
+        $wish_lists_obj->bind_param("ss", $this->wish_list_customer_id,$this->wish_list_shop_user_id);
+        if($wish_lists_obj->execute()){
+            $data = $wish_lists_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
     }
     public function getShopUserStatus(){
 
@@ -1201,7 +1217,7 @@ class Users{
         return array();
     }
     public function check_cart_list(){
-        $cart_query = "SELECT * from cart WHERE ProductId =?  AND CustomerId=? AND ShopUserId=?";
+        $cart_query = "SELECT * from cart WHERE ProductId =? AND Status=1 AND CustomerId=? AND ShopUserId=?";
         $cart_obj = $this->conn->prepare($cart_query);
         $cart_obj->bind_param("sss", $this->cart_list_product_id, $this->cart_list_customer_id,$this->cart_list_shop_user_id);
         if($cart_obj->execute()){
