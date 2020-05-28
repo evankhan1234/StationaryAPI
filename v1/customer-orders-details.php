@@ -21,7 +21,7 @@ $connection = $db->connect();
 
 $user_obj = new Users($connection);
 
-if($_SERVER['REQUEST_METHOD'] === "GET"){
+if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     // body
     $data = json_decode(file_get_contents("php://input"));
@@ -39,9 +39,9 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
         $secret_key = "owt125";
 
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-        $user_obj->user_id = $decoded_data->data->Id;
+        $user_obj->order_id = $data->OrderId;
 
-        $orders=$user_obj->getOrders();
+        $orders=$user_obj->getOrdersDetails();
 
         if($orders){
 
@@ -50,7 +50,7 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
                 "status" => 200,
                 "success" => true,
                 "data" => $orders,
-                "message" => "Orders Found"
+                "message" => "Orders Details Found"
             ));
         }else{
 
@@ -60,7 +60,7 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
                 "status" => 200,
                 "success" => true,
                 "data" => $orders,
-                "message" => "No Orders Found"
+                "message" => "No Orders Details Found"
             ));
         }
     }catch(Exception $ex){

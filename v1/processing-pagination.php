@@ -21,7 +21,7 @@ $connection = $db->connect();
 
 $user_obj = new Users($connection);
 
-if($_SERVER['REQUEST_METHOD'] === "GET"){
+if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     // body
     $data = json_decode(file_get_contents("php://input"));
@@ -39,18 +39,21 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
         $secret_key = "owt125";
 
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-        $user_obj->user_id = $decoded_data->data->Id;
+        $user_obj->orders_customer_id = $decoded_data->data->Id;
+        $user_obj->limit = $data->limit;
+        $user_obj->page = $data->page;
+        $user_obj->orders_shop_user_id = $data->ShopUserId;
 
-        $orders=$user_obj->getOrders();
+        $categoriess=$user_obj->getProcessingPagination();
 
-        if($orders){
+        if($categoriess){
 
             http_response_code(200); // ok
             echo json_encode(array(
                 "status" => 200,
                 "success" => true,
-                "data" => $orders,
-                "message" => "Orders Found"
+                "data" => $categoriess,
+                "message" => "Processing Orders Found"
             ));
         }else{
 
@@ -59,8 +62,8 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
 
                 "status" => 200,
                 "success" => true,
-                "data" => $orders,
-                "message" => "No Orders Found"
+                "data" => $categoriess,
+                "message" => "No Processing Orders Found"
             ));
         }
     }catch(Exception $ex){
