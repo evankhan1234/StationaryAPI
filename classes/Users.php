@@ -802,7 +802,7 @@ class Users{
 
     }
     public function getPendingPagination(){
-        $orders_query=("Select o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created from orders as o inner join customer as c on o.CustomerId=c.Id where  o.Status=1 AND o.CustomerId=? AND o.ShopId=?  LIMIT? OFFSET?");
+        $orders_query=("Select o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created from orders as o inner join customer as c on o.CustomerId=c.Id where  o.Status=1 AND o.CustomerId=? AND o.ShopId=? ORDER BY o.Created DESC  LIMIT? OFFSET?");
         $orders_query_obj = $this->conn->prepare($orders_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -818,7 +818,7 @@ class Users{
 
     }
     public function getProcessingPagination(){
-        $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id WHERE  ords.Status=2 AND ords.CustomerId=? AND ords.ShopId=?  LIMIT? OFFSET?");
+        $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id WHERE  ords.Status=2 AND ords.CustomerId=? AND ords.ShopId=? ORDER BY o.Created DESC LIMIT? OFFSET?");
         $orders_query_obj = $this->conn->prepare($orders_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -826,7 +826,6 @@ class Users{
         $units=array();
         if($orders_query_obj->execute()){
             $data = $orders_query_obj->get_result();
-
             while ($item=$data->fetch_assoc())
                 $units[]=$item;
             return $units;
@@ -834,7 +833,7 @@ class Users{
 
     }
     public function getDeliveredPagination(){
-        $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id WHERE  ords.Status=3 AND ords.CustomerId=? AND ords.ShopId=?  LIMIT? OFFSET?");
+        $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id WHERE  ords.Status=3 AND ords.CustomerId=? AND ords.ShopId=? ORDER BY ords.Created DESC LIMIT? OFFSET?");
         $orders_query_obj = $this->conn->prepare($orders_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -864,7 +863,7 @@ class Users{
 
     }
     public function getDeliveriesPagination(){
-        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? LIMIT? OFFSET?");
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -880,7 +879,7 @@ class Users{
 
     }
     public function getOrders(){
-        $orders_query=("SELECT o.Id, o.CustomerId,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1 AND o.ShopId=?");
+        $orders_query=("SELECT o.Id, o.CustomerId,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1 AND o.ShopId=? ORDER BY o.Created DESC");
         $orderss_query_obj = $this->conn->prepare($orders_query);
         $orderss_query_obj->bind_param("s",$this->user_id);
         $orders=array();
@@ -1003,10 +1002,38 @@ class Users{
         }
 
     }
+    public function getCustomerSearchProductCategoryPagination(){
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=?  LIMIT ? OFFSET ?");
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products_query_obj->bind_param("sss",$this->shop_user_id,$this->limit,$offset_page);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getCustomerProductCategorySearch(){
         $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=? AND p.ProductCategoryId=? AND p.Name LIKE ?");
         $products_query_obj = $this->conn->prepare($products_query);
         $products_query_obj->bind_param("sss",$this->shop_user_id,$this->product_category_id,$this->search);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getCustomerProductSearch(){
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=?  AND p.Name LIKE ?");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products_query_obj->bind_param("ss",$this->shop_user_id,$this->search);
         $units=array();
         if($products_query_obj->execute()){
             $data = $products_query_obj->get_result();
