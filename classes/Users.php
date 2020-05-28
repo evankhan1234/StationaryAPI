@@ -826,7 +826,6 @@ class Users{
         $units=array();
         if($orders_query_obj->execute()){
             $data = $orders_query_obj->get_result();
-
             while ($item=$data->fetch_assoc())
                 $units[]=$item;
             return $units;
