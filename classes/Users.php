@@ -122,6 +122,7 @@ class Users{
   public $cart_list_price;
   public $cart_list_quantity;
   public $cart_list_name;
+  public $customer_id;
 
   public $orders_customer_id;
   public $orders_shop_id;
@@ -406,13 +407,29 @@ class Users{
     public function update_product_type(){
         $product_update_type_query = "UPDATE product_category_type SET Name = ?, Status = ?, ShopId = ?, created = ? Where Id=?";
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
-
         $product_update_type_obj->bind_param("sssss", $this->product_category_name, $this->product_category_status, $this->product_category_shop_id, $this->product_category_created, $this->product_category_id);
         if($product_update_type_obj->execute()){
             return true;
         }
         return false;
-
+    }
+    public function update_customer_user_details(){
+        $product_update_type_query = "UPDATE customer SET Name = ?, Address = ?, Picture = ?, Gender = ? Where Id=?";
+        $product_update_type_obj = $this->conn->prepare($product_update_type_query);
+        $product_update_type_obj->bind_param("sssss", $this->customer_name, $this->customer_address, $this->customer_picture, $this->customer_gender, $this->customer_id);
+        if($product_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_customer_user_passwords(){
+        $product_update_type_query = "UPDATE customer SET Password = ? Where Id=?";
+        $product_update_type_obj = $this->conn->prepare($product_update_type_query);
+        $product_update_type_obj->bind_param("ss", $this->customer_password, $this->customer_id);
+        if($product_update_type_obj->execute()){
+            return true;
+        }
+        return false;
     }
     public function update_delivery_status(){
         $delivery_query = "UPDATE orderdelivery SET OrderDetails = ?, Status = ?, DeliveryCharge = ? Where Id=? AND ShopId=? ";
@@ -643,20 +660,24 @@ class Users{
 
     }
     public function getShopUserInformation(){
-
         $shop_user_details_query=("Select * from ".$this->users_tbl." as u inner join ".$this->shop_tbl." as s on  u.Id =s.ShopUserId where u.Id=?");
-        json_encode($shop_user_details_query);
         $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
         $shop_user_details_obj->bind_param("s",$this->user_id);
         if($shop_user_details_obj->execute()){
             $data = $shop_user_details_obj->get_result();
-
             return $data->fetch_assoc();
-            return $data;
         }
         return NULL;
-
-
+    }
+    public function getCustomerUserInformation(){
+        $user_details_query=("Select * from customer where Id=?");
+        $user_details_obj = $this->conn->prepare($user_details_query);
+        $user_details_obj->bind_param("s",$this->customer_id);
+        if($user_details_obj->execute()){
+            $data = $user_details_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
     }
     public function getProductLike(){
         $shop_user_details_query=("Select * from wishlist  where ProductId=? AND CustomerId=? AND ShopUserId=?");
