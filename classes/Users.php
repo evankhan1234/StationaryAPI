@@ -140,9 +140,15 @@ class Users{
   public $orders_status;
   public $orders_quantity;
   public $orders_id;
-
   public $orders_details_id;
   public $orders_details_shop_id;
+
+  public $notice_title;
+  public $notice_body;
+  public $notice_image;
+  public $notice_created;
+  public $notice_status;
+  public $notice_type;
 
 
   private $conn;
@@ -372,19 +378,22 @@ class Users{
 
   }
     public function create_product_type(){
-
-
         $product_type_query = "INSERT into ".$this->product_type_tbl." SET Name = ?, Status = ?, ShopId = ?, created = ?,ShopUserId=?";
-
         $product_type_obj = $this->conn->prepare($product_type_query);
-
         $product_type_obj->bind_param("sssss", $this->product_category_name, $this->product_category_status, $this->product_category_shop_id, $this->product_category_created, $this->product_category_shop_user_id);
         if($product_type_obj->execute()){
             return true;
         }
-
         return false;
-
+    }
+    public function create_notice(){
+        $product_type_query = "INSERT into notice SET Title = ?, Content = ?, Image = ?, Created = ?,Status=?,Types=?";
+        $product_type_obj = $this->conn->prepare($product_type_query);
+        $product_type_obj->bind_param("ssssss", $this->notice_title, $this->notice_body, $this->notice_image, $this->notice_created, $this->notice_status, $this->notice_type);
+        if($product_type_obj->execute()){
+            return true;
+        }
+        return false;
     }
     public function create_wish_list(){
         $wish_query = "INSERT into wishlist SET ProductId = ?, Status = ?, CustomerId = ?, Created = ?,ShopUserId=?";
@@ -728,15 +737,31 @@ class Users{
 
     }
     public function getUnit(){
-
-
         $result= $this->conn->query("Select * from unit");
         $units=array();
         while ($item=$result->fetch_assoc())
             $units[]=$item;
         return $units;
+    }
+    public function getUnits(){
+        $result= $this->conn->query("Select * from notice where Types=2");
+        $units=array();
+        while ($item=$result->fetch_assoc())
+            $units[]=$item;
+        return $units;
+    }
+    public function getNotice(){
+        $result=("Select * from notice where  Types=?");
+        $products_query_obj = $this->conn->prepare($result);
+        $products_query_obj->bind_param("s",$this->notice_type);
+        $products=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
 
-
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
     }
     public function getShopType(){
 
@@ -881,7 +906,19 @@ class Users{
                 $units[]=$item;
             return $units;
         }
+    }
+    public function getCustomerRecentProduct(){
+        $categorys_query=("Select * from product where Status=1 AND ShopUserId=? ORDER BY Created DESC limit 20");
+        $categorys_query_obj = $this->conn->prepare($categorys_query);
+        $categorys_query_obj->bind_param("s",$this->shop_user_id);
+        $units=array();
+        if($categorys_query_obj->execute()){
+            $data = $categorys_query_obj->get_result();
 
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
     }
     public function getDeliveriesPagination(){
         $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
