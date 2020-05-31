@@ -751,9 +751,11 @@ class Users{
         return $units;
     }
     public function getNotice(){
-        $result=("Select * from notice where  Types=?");
+        $result=("Select * from notice where  Types=? order by Created DESC  LIMIT? OFFSET?");
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
         $products_query_obj = $this->conn->prepare($result);
-        $products_query_obj->bind_param("s",$this->notice_type);
+        $products_query_obj->bind_param("sss",$this->notice_type,$this->limit,$offset_page);
         $products=array();
         if($products_query_obj->execute()){
             $data = $products_query_obj->get_result();
