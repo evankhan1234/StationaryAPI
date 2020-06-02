@@ -84,6 +84,7 @@ class Users{
   public $latitude;
   public $longitude;
   public $page;
+  public $type;
   public $user_image;
 
   public $user_email;
@@ -123,6 +124,17 @@ class Users{
   public $cart_list_quantity;
   public $cart_list_name;
   public $customer_id;
+
+  public $post_id;
+  public $post_content;
+  public $post_image;
+  public $post_picture;
+  public $post_name;
+  public $post_created;
+  public $post_type;
+  public $post_status;
+  public $post_love;
+  public $post_user_id;
 
   public $orders_customer_id;
   public $orders_shop_id;
@@ -386,6 +398,24 @@ class Users{
         }
         return false;
     }
+    public function create_post(){
+        $post_query = "INSERT into post SET Content=?, Picture=?, Created=?, Status = ?,Love=?, Type = ?,UserId=?, Name = ?,Image = ? ";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("sssssssss", $this->post_content, $this->post_picture, $this->post_created, $this->post_status, $this->post_love, $this->post_type, $this->post_user_id, $this->post_name, $this->post_image);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function create_love(){
+        $love_query = "INSERT into love SET PostId=?, UserForId=?, Type=?";
+        $love_obj = $this->conn->prepare($love_query);
+        $love_obj->bind_param("sss", $this->post_id, $this->post_user_id, $this->post_type);
+        if($love_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function create_notice(){
         $product_type_query = "INSERT into notice SET Title = ?, Content = ?, Image = ?, Created = ?,Status=?,Types=?";
         $product_type_obj = $this->conn->prepare($product_type_query);
@@ -497,6 +527,16 @@ class Users{
         $delivery_obj = $this->conn->prepare($delivery_query);
         $delivery_obj->bind_param("ssss", $this->cart_list_quantity, $this->cart_list_product_id, $this->cart_list_customer_id, $this->cart_list_shop_user_id);
         if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_like_count(){
+        $post_query = "UPDATE post SET Love =? Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("ss", $this->post_love, $this->post_id);
+        if($post_obj->execute()){
             return true;
         }
         return false;
@@ -842,6 +882,40 @@ class Users{
         $units=array();
         if($categorys_query_obj->execute()){
             $data = $categorys_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getPostPagination(){
+        $posts_query=("SELECT p.Type,p.Id, p.Name,p.Image,p.UserId,p.Content AS Content,p.Picture AS Picture,p.Created AS Created ,p.Love AS Love 
+,(CASE WHEN l.UserForId >0 THEN 'true' ELSE 'false' END) AS value FROM post AS p 
+LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.PostId  ORDER BY P.Created DESC LIMIT? OFFSET?");
+        $posts_query_obj = $this->conn->prepare($posts_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $posts_query_obj->bind_param("ssss",$this->user_id,$this->type,$this->limit,$offset_page);
+        $units=array();
+        if($posts_query_obj->execute()){
+            $data = $posts_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getOwnPostPagination(){
+        $posts_query=("SELECT Id,Type,Name,Image,UserId,Content,Picture,Created,Love FROM post WHERE TYPE=? AND UserId=? ORDER BY Created DESC LIMIT? OFFSET?");
+        $posts_query_obj = $this->conn->prepare($posts_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $posts_query_obj->bind_param("ssss",$this->type,$this->user_id,$this->limit,$offset_page);
+        $units=array();
+        if($posts_query_obj->execute()){
+            $data = $posts_query_obj->get_result();
 
             while ($item=$data->fetch_assoc())
                 $units[]=$item;
