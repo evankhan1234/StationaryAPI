@@ -621,14 +621,22 @@ class Users{
 
     }
     public function delete_product_type(){
-        $product_delete_type_query = "DELETE FROM ".$this->product_type_tbl."  Where Id=? and ShopUserId=? ";
+    $product_delete_type_query = "DELETE FROM ".$this->product_type_tbl."  Where Id=? and ShopUserId=? ";
+    $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
+    $product_delete_type_obj->bind_param("ss",  $this->product_category_id, $this->product_category_shop_user_id);
+    if($product_delete_type_obj->execute()){
+        return true;
+    }
+    return false;
+}
+    public function delete_love(){
+        $product_delete_type_query = "DELETE FROM love  Where PostId=? and UserForId=? and Type=? ";
         $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
-        $product_delete_type_obj->bind_param("ss",  $this->product_category_id, $this->product_category_shop_user_id);
+        $product_delete_type_obj->bind_param("sss",  $this->post_id, $this->post_user_id, $this->post_type);
         if($product_delete_type_obj->execute()){
             return true;
         }
         return false;
-
     }
     public function delete_customer_order_items(){
         $product_delete_type_query = "DELETE FROM orderdetails  Where Id=? and ShopId=? ";
