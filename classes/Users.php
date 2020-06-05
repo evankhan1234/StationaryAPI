@@ -125,6 +125,15 @@ class Users{
   public $cart_list_name;
   public $customer_id;
   public $comments_id;
+  public $comments_post_id;
+  public $comments_user_id;
+  public $comments_type;
+  public $comments_name;
+  public $comments_image;
+  public $comments_status;
+  public $comments_love;
+  public $comments_created;
+  public $comments_content;
 
   public $post_id;
   public $post_content;
@@ -408,11 +417,29 @@ class Users{
         }
         return false;
     }
+    public function create_comments(){
+        $comments_query = "INSERT into comments SET Content=?,  Created=?, Status = ?,Love=?, Type = ?,UserId=?, Username = ?,UserImage = ?,PostId = ? ";
+        $comments_obj = $this->conn->prepare($comments_query);
+        $comments_obj->bind_param("sssssssss", $this->comments_content, $this->comments_created, $this->comments_status, $this->comments_love, $this->comments_type, $this->comments_user_id, $this->comments_name, $this->comments_image, $this->comments_post_id);
+        if($comments_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function create_love(){
         $love_query = "INSERT into love SET PostId=?, UserForId=?, Type=?";
         $love_obj = $this->conn->prepare($love_query);
         $love_obj->bind_param("sss", $this->post_id, $this->post_user_id, $this->post_type);
         if($love_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function create_like(){
+        $like_query = "INSERT into likes SET PostId=?, UserForId=?, Type=?";
+        $like_obj = $this->conn->prepare($like_query);
+        $like_obj->bind_param("sss", $this->comments_post_id, $this->comments_user_id, $this->comments_type);
+        if($like_obj->execute()){
             return true;
         }
         return false;
@@ -541,7 +568,15 @@ class Users{
             return true;
         }
         return false;
-
+    }
+    public function update_comments_like_count(){
+        $post_query = "UPDATE comments SET Love =? Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("ss", $this->comments_love, $this->comments_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
     }
     function updateAvatar(){
         return $result=$this->conn->query("Update ".$this->users_tbl." set Picture='$this->user_image' where Id='$this->user_id'");
@@ -593,6 +628,20 @@ class Users{
         return false;
 
     }
+    public function update_own_post(){
+
+        $post_update_type_query=("UPDATE post SET Name = ?, Image = ?, Content = ?, Picture =? where Type=? and UserId=?");
+
+        $post_update_type_obj = $this->conn->prepare($post_update_type_query);
+
+        $post_update_type_obj->bind_param("ssssss", $this->post_name, $this->post_image,$this->post_content, $this->post_picture, $this->post_type, $this->post_user_id);
+
+        if($post_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     public function update_purchase(){
         $purchase_update_type_query=("UPDATE ".$this->purchase_tbl." SET ProductName = ?, ProductDetails = ?, PurchaseNo = ?, PurchaseDate =?, Stock =?,Item =?, Quantity =?, Rate=?, Discount=?, Total =?,GrandTotal =?, UnitId =?, ShopId=?, Created=?,Status=?,ShopUserId=? where Id=? AND ShopUserId=? ");
 
@@ -635,6 +684,15 @@ class Users{
         $product_delete_type_obj = $this->conn->prepare($product_delete_type_query);
         $product_delete_type_obj->bind_param("sss",  $this->post_id, $this->post_user_id, $this->post_type);
         if($product_delete_type_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function delete_like(){
+        $delete_type_query = "DELETE FROM likes  Where PostId=? and UserForId=? and Type=? ";
+        $delete_type_obj = $this->conn->prepare($delete_type_query);
+        $delete_type_obj->bind_param("sss",  $this->comments_post_id, $this->comments_user_id, $this->comments_type);
+        if($delete_type_obj->execute()){
             return true;
         }
         return false;
@@ -883,9 +941,12 @@ class Users{
         }
     }
     public function getCommentsList(){
-        $comments_query=("SELECT * from comments where PostId=?");
+        $comments_query=("SELECT c.Id,c.Type, c.Content,c.UserImage,c.UserName,c.Created,c.Love
+,(CASE WHEN l.UserForId >0 THEN 'true' ELSE 'false' END) AS IsValue FROM comments AS c 
+LEFT JOIN (SELECT * FROM likes WHERE UserForId =? AND TYPE=?) 
+AS l ON c.Id = l.PostId WHERE c.PostId=? ORDER BY c.Created ");
         $comments_query_obj = $this->conn->prepare($comments_query);
-        $comments_query_obj->bind_param("s",$this->comments_id);
+        $comments_query_obj->bind_param("sss",$this->comments_user_id,$this->comments_type,$this->comments_post_id);
         $units=array();
         if($comments_query_obj->execute()){
             $data = $comments_query_obj->get_result();

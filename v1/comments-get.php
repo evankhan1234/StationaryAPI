@@ -37,12 +37,11 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
 
         $jwt = $headers["Authorization"];
-
         $secret_key = "owt125";
-
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-
-        $user_obj->comments_id= $data->PostId;
+        $user_obj->comments_user_id= $decoded_data->data->Id;
+        $user_obj->comments_post_id= $data->PostId;
+        $user_obj->comments_type= $data->Type;
 
         $comments=$user_obj->getCommentsList();
 
