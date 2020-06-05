@@ -124,6 +124,7 @@ class Users{
   public $cart_list_quantity;
   public $cart_list_name;
   public $customer_id;
+  public $comments_id;
 
   public $post_id;
   public $post_content;
@@ -876,6 +877,18 @@ class Users{
         $units=array();
         if($cart_query_obj->execute()){
             $data = $cart_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+    }
+    public function getCommentsList(){
+        $comments_query=("SELECT * from comments where PostId=?");
+        $comments_query_obj = $this->conn->prepare($comments_query);
+        $comments_query_obj->bind_param("s",$this->comments_id);
+        $units=array();
+        if($comments_query_obj->execute()){
+            $data = $comments_query_obj->get_result();
             while ($item=$data->fetch_assoc())
                 $units[]=$item;
             return $units;
