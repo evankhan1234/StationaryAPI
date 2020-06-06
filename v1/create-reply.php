@@ -29,7 +29,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     $headers = getallheaders();
 
-    if(!empty($data->Content) && !empty($data->Picture)){
+    if(!empty($data->Name) && !empty($data->Content)){
 
         try{
 
@@ -38,23 +38,21 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $secret_key = "owt125";
 
             $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-            $user_obj->post_user_id = $decoded_data->data->Id;
-            $user_obj->post_content = $data->Content;
-            $user_obj->post_picture = $data->Picture;
-            $user_obj->post_name = $data->Name;
-            $user_obj->post_image = $data->Image;
-            $user_obj->post_type = $data->Type;
-            $user_obj->post_id = $data->Id;
+            $user_obj->reply_comments_id = $data->CommentId;
+            $user_obj->reply_type = $data->Type;
+            $user_obj->reply_content= $data->Content;
+            $user_obj->reply_created = $data->Created;
+            $user_obj->reply_image = $data->Image;
+            $user_obj->reply_name= $data->Name;
+            $user_obj->reply_status = $data->Status;
 
-
-
-            if($user_obj->update_own_post()){
+            if($user_obj->create_reply()){
 
                 http_response_code(200); // ok
                 echo json_encode(array(
                     "status" => 200,
                     "success" => true,
-                    "message" => "Post Updated SuccessFully"
+                    "message" => "Reply has been created"
                 ));
             }else{
 
@@ -63,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
                     "status" => 500,
                     "success" => false,
-                    "message" => "Failed to Updated Post"
+                    "message" => "Failed to Create Reply"
                 ));
             }
         }catch(Exception $ex){

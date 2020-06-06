@@ -134,6 +134,13 @@ class Users{
   public $comments_love;
   public $comments_created;
   public $comments_content;
+  public $reply_content;
+  public $reply_created;
+  public $reply_status;
+  public $reply_image;
+  public $reply_name;
+  public $reply_type;
+  public $reply_comments_id;
 
   public $post_id;
   public $post_content;
@@ -426,6 +433,15 @@ class Users{
         }
         return false;
     }
+    public function create_reply(){
+        $reply_query = "INSERT into reply SET Content=?,  Created=?, Status = ?, Type = ?,Username = ?,UserImage = ?,CommentsId = ? ";
+        $reply_obj = $this->conn->prepare($reply_query);
+        $reply_obj->bind_param("sssssss", $this->reply_content, $this->reply_created, $this->reply_status, $this->reply_type, $this->reply_name, $this->reply_image, $this->reply_comments_id);
+        if($reply_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function create_love(){
         $love_query = "INSERT into love SET PostId=?, UserForId=?, Type=?";
         $love_obj = $this->conn->prepare($love_query);
@@ -630,11 +646,11 @@ class Users{
     }
     public function update_own_post(){
 
-        $post_update_type_query=("UPDATE post SET Name = ?, Image = ?, Content = ?, Picture =? where Type=? and UserId=?");
+        $post_update_type_query=("UPDATE post SET Name = ?, Image = ?, Content = ?, Picture =? where Type=? and UserId=? and Id=?");
 
         $post_update_type_obj = $this->conn->prepare($post_update_type_query);
 
-        $post_update_type_obj->bind_param("ssssss", $this->post_name, $this->post_image,$this->post_content, $this->post_picture, $this->post_type, $this->post_user_id);
+        $post_update_type_obj->bind_param("sssssss", $this->post_name, $this->post_image,$this->post_content, $this->post_picture, $this->post_type, $this->post_user_id, $this->post_id);
 
         if($post_update_type_obj->execute()){
             return true;
@@ -955,6 +971,18 @@ AS l ON c.Id = l.PostId WHERE c.PostId=? ORDER BY c.Created ");
             return $units;
         }
     }
+    public function getReplyList(){
+        $reply_query=("SELECT * from reply where CommentsId=?");
+        $reply_query_obj = $this->conn->prepare($reply_query);
+        $reply_query_obj->bind_param("s",$this->reply_comments_id);
+        $units=array();
+        if($reply_query_obj->execute()){
+            $data = $reply_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+    }
     public function getProductCategoryTypeExtra(){
         $categorys_query=("Select * from product_category_type where  ShopUserId=?  LIMIT? OFFSET?");
         $categorys_query_obj = $this->conn->prepare($categorys_query);
@@ -1066,7 +1094,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
     }
     public function getCustomerRecentProduct(){
-        $categorys_query=("Select * from product where Status=1 AND ShopUserId=? ORDER BY Created DESC limit 20");
+        $categorys_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id  where p.Status=1 AND p.ShopUserId=? ORDER BY p.Created DESC limit 20");
         $categorys_query_obj = $this->conn->prepare($categorys_query);
         $categorys_query_obj->bind_param("s",$this->shop_user_id);
         $units=array();
