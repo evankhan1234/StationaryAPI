@@ -1149,7 +1149,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
     }
     public function getProduct(){
-        $products_query=("Select * from product where  ShopUserId=?  LIMIT? OFFSET?");
+        $products_query=("Select * from product where  ShopUserId=? ORDER BY Created DESC LIMIT? OFFSET?");
         $products_query_obj = $this->conn->prepare($products_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
