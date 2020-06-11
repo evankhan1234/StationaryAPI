@@ -353,7 +353,7 @@ class Users{
     public function create_shop(){
 
     //  echo json_encode($shop_obj);
-        $shop_query = "INSERT INTO ".$this->shop_tbl." SET Name = ?, Address = ?, LicenseNumber = ?, Status =?, ShopUserId =?";
+        $shop_query = "INSERT INTO ".$this->shop_tbl." SET Name = ?, Address = ?, LicenseNumber = ?, Status =?, ShopUserId =?,Latitude='23.7926304',Longitude='90.3569598'";
 
         $shop_obj = $this->conn->prepare($shop_query);
 
@@ -801,6 +801,23 @@ class Users{
         }
         return NULL;
     }
+    public function getShopUserCountStore(){
+        $shop_user_details_query=("SELECT  SUM(product) AS Product,SUM(supplier) AS Supplier ,SUM(purchase) AS Purchase ,SUM(category) AS Category FROM (SELECT COUNT(*) AS product,0 supplier,0 purchase,0 category FROM product WHERE STATUS=1 AND ShopUserId=?
+ UNION ALL
+  SELECT 0 product,COUNT(*) AS supplier, 0 purchase,0 category FROM supplier WHERE STATUS=1 AND ShopUserId=?
+  UNION ALL
+  SELECT 0 product,0 supplier,COUNT(*) AS purchase ,0 category FROM purchase WHERE STATUS=1 AND ShopUserId=?
+  UNION ALL
+  SELECT 0 product,0 supplier,0 purchase,COUNT(*) AS category FROM product_category_type WHERE STATUS=1 AND ShopUserId=?
+  ) qu");
+        $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
+        $shop_user_details_obj->bind_param("ssss",$this->user_id,$this->user_id,$this->user_id,$this->user_id);
+        if($shop_user_details_obj->execute()){
+            $data = $shop_user_details_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getCustomerUserInformation(){
         $user_details_query=("Select * from customer where Id=?");
         $user_details_obj = $this->conn->prepare($user_details_query);
@@ -951,6 +968,18 @@ class Users{
         $units=array();
         if($cart_query_obj->execute()){
             $data = $cart_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+    }
+    public function getLastFiveSales(){
+        $query=("SELECT Total FROM orderdelivery WHERE ShopId=? ORDER BY Created DESC LIMIT 5");
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("s",$this->shop_user_id);
+        $units=array();
+        if($obj->execute()){
+            $data = $obj->get_result();
             while ($item=$data->fetch_assoc())
                 $units[]=$item;
             return $units;
