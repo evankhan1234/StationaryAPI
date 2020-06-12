@@ -801,6 +801,16 @@ class Users{
         }
         return NULL;
     }
+    public function getCustomerOrdersInformation(){
+        $query=("SELECT Discount,Total,PaidAmount,DueAmount,InvoiceNumber,OrderDetails,DeliveryCharge FROM orderdelivery  WHERE  ShopId=?  AND OrderId=?");
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("ss",$this->user_id,$this->orders_id);
+        if($obj->execute()){
+            $data = $obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getShopUserCountStore(){
         $shop_user_details_query=("SELECT  SUM(product) AS Product,SUM(supplier) AS Supplier ,SUM(purchase) AS Purchase ,SUM(category) AS Category FROM (SELECT COUNT(*) AS product,0 supplier,0 purchase,0 category FROM product WHERE STATUS=1 AND ShopUserId=?
  UNION ALL
@@ -812,6 +822,22 @@ class Users{
   ) qu");
         $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
         $shop_user_details_obj->bind_param("ssss",$this->user_id,$this->user_id,$this->user_id,$this->user_id);
+        if($shop_user_details_obj->execute()){
+            $data = $shop_user_details_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
+    public function getCustomerOrderCount(){
+        $shop_user_details_query=("SELECT  SUM(Pending) AS Pending,SUM(Processing) AS Processing ,SUM(Delivered) AS Delivered FROM(
+SELECT COUNT(*) AS Pending, 0 Processing,0 Delivered   FROM orders  WHERE STATUS=1 AND ShopId=? 
+UNION ALL
+SELECT 0 Pending,COUNT(*) AS Processing, 0 Delivered  FROM orderdelivery  WHERE STATUS=2 AND ShopId=? 
+UNION ALL
+SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE STATUS=3 AND ShopId=? 
+) qu");
+        $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
+        $shop_user_details_obj->bind_param("sss",$this->user_id,$this->user_id,$this->user_id);
         if($shop_user_details_obj->execute()){
             $data = $shop_user_details_obj->get_result();
             return $data->fetch_assoc();
@@ -1391,7 +1417,6 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
                 $products[]=$item;
             return $products;
         }
-
     }
     public function getDeliveryListByShop(){
         $deliveries_query=("SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=?");

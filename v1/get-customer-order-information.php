@@ -21,7 +21,7 @@ $connection = $db->connect();
 
 $user_obj = new Users($connection);
 
-if($_SERVER['REQUEST_METHOD'] === "GET"){
+if($_SERVER['REQUEST_METHOD'] === "POST"){
 
     // body
     $data = json_decode(file_get_contents("php://input"));
@@ -40,15 +40,16 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
         $secret_key = "owt125";
 
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
-        $user_obj->user_id = $decoded_data->data->Id;
+        $user_obj->user_id = $data->ShopId;
+        $user_obj->orders_id = $data->OrderId;
 
 
 //            $datas = $user_obj->check_emails();
 
-        $data=$user_obj->getShopUserCountStore();
+        $data=$user_obj->getCustomerOrdersInformation();
         //   echo json_encode($data);
 
-        if($user_obj->getShopUserCountStore()){
+        if($user_obj->getCustomerOrdersInformation()){
 
             http_response_code(200); // ok
             echo json_encode(array(
@@ -64,6 +65,7 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
 
                 "status" => 200,
                 "success" => true,
+                "data" => $data,
                 "message" => "No Data Found"
             ));
         }

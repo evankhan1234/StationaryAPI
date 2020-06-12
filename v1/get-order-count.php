@@ -45,10 +45,10 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
 
 //            $datas = $user_obj->check_emails();
 
-        $data=$user_obj->getShopUserCountStore();
+        $data=$user_obj->getCustomerOrderCount();
         //   echo json_encode($data);
 
-        if($user_obj->getShopUserCountStore()){
+        if($user_obj->getCustomerOrderCount()){
 
             http_response_code(200); // ok
             echo json_encode(array(
