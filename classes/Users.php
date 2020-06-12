@@ -86,6 +86,9 @@ class Users{
   public $page;
   public $type;
   public $user_image;
+  public $token_type;
+  public $token_user_id;
+  public $token_data;
 
   public $user_email;
   public $user_password;
@@ -253,6 +256,17 @@ class Users{
         }
 
         return false;
+    }
+    public function create_token(){
+        $query = "INSERT INTO firebasetoken SET Token=?, Type=?, UserId=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("sss", $this->token_data, $this->token_type,$this->token_user_id);
+        if($obj->execute()){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
     public function create_delivery(){
 
@@ -576,6 +590,16 @@ class Users{
         return false;
 
     }
+    public function update_token(){
+        $query = "UPDATE firebasetoken SET Token =? Where UserId=? AND Type=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("sss", $this->token_data, $this->token_user_id, $this->token_type);
+        if($obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     public function update_like_count(){
         $post_query = "UPDATE post SET Love =? Where Id=?";
         $post_obj = $this->conn->prepare($post_query);
@@ -805,6 +829,16 @@ class Users{
         $query=("SELECT Discount,Total,PaidAmount,DueAmount,InvoiceNumber,OrderDetails,DeliveryCharge FROM orderdelivery  WHERE  ShopId=?  AND OrderId=?");
         $obj = $this->conn->prepare($query);
         $obj->bind_param("ss",$this->user_id,$this->orders_id);
+        if($obj->execute()){
+            $data = $obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
+    public function getTokenByUser(){
+        $query=("SELECT Token FROM firebasetoken  WHERE  UserId=?  AND Type=?");
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("ss",$this->token_user_id,$this->token_type);
         if($obj->execute()){
             $data = $obj->get_result();
             return $data->fetch_assoc();
@@ -1162,7 +1196,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
     }
     public function getDeliveriesPagination(){
-        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -1617,6 +1651,21 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         $email_query = "SELECT * from ".$this->purchase_tbl." WHERE ProductName = ? AND ShopUserId=?";
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->purchase_name,$this->purchase_shop_user_id);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_token(){
+
+        $email_query = "SELECT * from firebasetoken WHERE UserId = ? AND Type=?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->token_user_id,$this->token_type);
 
         if($usr_obj->execute()){
 
