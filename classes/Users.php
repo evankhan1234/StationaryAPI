@@ -101,6 +101,9 @@ class Users{
   public $status;
   public $shop_type_id;
   public $shop_user_id;
+  public $shop_user_name;
+  public $shop_user_address;
+  public $shop_user_picture;
   public $shop_name;
   public $product_category_name;
   public $product_category_shop_user_id;
@@ -515,6 +518,15 @@ class Users{
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
         $product_update_type_obj->bind_param("sssss", $this->customer_name, $this->customer_address, $this->customer_picture, $this->customer_gender, $this->customer_id);
         if($product_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_shop_user_details_for(){
+        $query = "UPDATE shopusers SET OwnerName = ?, OwnerAddress = ?, Picture = ? Where Id=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("ssss", $this->shop_user_name, $this->shop_user_address, $this->shop_user_picture, $this->shop_user_id);
+        if($obj->execute()){
             return true;
         }
         return false;
