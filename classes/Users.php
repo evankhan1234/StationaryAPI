@@ -101,6 +101,7 @@ class Users{
   public $status;
   public $shop_type_id;
   public $shop_user_id;
+  public $shop_user_password;
   public $shop_user_name;
   public $shop_user_address;
   public $shop_user_picture;
@@ -536,6 +537,15 @@ class Users{
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
         $product_update_type_obj->bind_param("ss", $this->customer_password, $this->customer_id);
         if($product_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function updates_shop_user_passwords(){
+        $query = "UPDATE shopusers SET Password = ? Where Id=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("ss", $this->shop_user_password, $this->shop_user_id);
+        if($obj->execute()){
             return true;
         }
         return false;
