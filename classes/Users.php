@@ -88,6 +88,9 @@ class Users{
   public $user_image;
   public $token_type;
   public $token_user_id;
+  public $firebase_user_id;
+  public $firebase_data;
+  public $firebase_type;
   public $token_data;
 
   public $user_email;
@@ -265,6 +268,17 @@ class Users{
         $query = "INSERT INTO firebasetoken SET Token=?, Type=?, UserId=?";
         $obj = $this->conn->prepare($query);
         $obj->bind_param("sss", $this->token_data, $this->token_type,$this->token_user_id);
+        if($obj->execute()){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    public function create_firebase_id(){
+        $query = "INSERT INTO firebaseid SET FirebaseId=?, Type=?, UserId=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("sss", $this->firebase_data, $this->firebase_type,$this->firebase_user_id);
         if($obj->execute()){
             return true;
         }
@@ -861,6 +875,16 @@ class Users{
         $query=("SELECT Token FROM firebasetoken  WHERE  UserId=?  AND Type=?");
         $obj = $this->conn->prepare($query);
         $obj->bind_param("ss",$this->token_user_id,$this->token_type);
+        if($obj->execute()){
+            $data = $obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
+    public function getFirebaseIdByUser(){
+        $query=("SELECT firebaseId FROM firebaseid  WHERE  UserId=?  AND Type=?");
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("ss",$this->firebase_user_id,$this->firebase_type);
         if($obj->execute()){
             $data = $obj->get_result();
             return $data->fetch_assoc();
@@ -1684,18 +1708,23 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         return array();
     }
     public function check_token(){
-
         $email_query = "SELECT * from firebasetoken WHERE UserId = ? AND Type=?";
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->token_user_id,$this->token_type);
-
         if($usr_obj->execute()){
-
             $data = $usr_obj->get_result();
-
             return $data->fetch_assoc();
         }
-
+        return array();
+    }
+    public function check_firebase_id(){
+        $email_query = "SELECT * from firebaseid WHERE UserId = ? AND Type=?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->firebase_user_id,$this->firebase_type);
+        if($usr_obj->execute()){
+            $data = $usr_obj->get_result();
+            return $data->fetch_assoc();
+        }
         return array();
     }
     public function check_delivery(){
