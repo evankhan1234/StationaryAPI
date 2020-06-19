@@ -92,6 +92,11 @@ class Users{
   public $firebase_data;
   public $firebase_type;
   public $token_data;
+  public $chat_customer_id;
+  public $chat_shop_id;
+  public $chat_created;
+  public $chat_firebase_id;
+  public $chat_seen;
 
   public $user_email;
   public $user_password;
@@ -279,6 +284,17 @@ class Users{
         $query = "INSERT INTO firebaseid SET FirebaseId=?, Type=?, UserId=?";
         $obj = $this->conn->prepare($query);
         $obj->bind_param("sss", $this->firebase_data, $this->firebase_type,$this->firebase_user_id);
+        if($obj->execute()){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    public function create_customer_chat(){
+        $query = "INSERT INTO chatlist SET CustomerId=?, ShopUserId=?, Created=?, FirebaseId=?, Seen=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("sssss", $this->chat_customer_id, $this->chat_shop_id,$this->chat_created, $this->chat_firebase_id,$this->chat_seen);
         if($obj->execute()){
             return true;
         }
@@ -636,10 +652,39 @@ class Users{
         return false;
 
     }
+    public function update_firebase_id(){
+        $query = "UPDATE firebaseid SET FirebaseId =? Where UserId=? AND Type=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("sss", $this->firebase_data, $this->firebase_user_id, $this->firebase_type);
+        if($obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_chat_list(){
+        $query = "UPDATE chatlist SET Created =?,Seen=? Where ShopUserId=? AND CustomerId=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("ssss", $this->chat_created, $this->chat_seen,$this->chat_shop_id, $this->chat_customer_id);
+        if($obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     public function update_like_count(){
         $post_query = "UPDATE post SET Love =? Where Id=?";
         $post_obj = $this->conn->prepare($post_query);
         $post_obj->bind_param("ss", $this->post_love, $this->post_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_chat_seen(){
+        $post_query = "UPDATE chatlist SET Seen ='1' Where ShopUserId=? AND CustomerId =?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("ss", $this->chat_shop_id, $this->chat_customer_id);
         if($post_obj->execute()){
             return true;
         }
@@ -966,6 +1011,16 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
         }
         return NULL;
     }
+    public function getChatListCount(){
+        $wish_lists_query=("SELECT Count(*) as Counts from chatlist Where  Seen=0  AND ShopUserId=?");
+        $wish_lists_obj = $this->conn->prepare($wish_lists_query);
+        $wish_lists_obj->bind_param("s", $this->shop_user_id);
+        if($wish_lists_obj->execute()){
+            $data = $wish_lists_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getShopUserStatus(){
 
         $shop_user_status_query=("Select * from ".$this->users_tbl." where Id=?");
@@ -1184,6 +1239,23 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
 
     }
+    public function getChatListPagination(){
+        $orders_query=("SELECT cs.Name,cs.Email,c.Created,cs.Picture,c.FirebaseId,c.CustomerId  FROM chatlist AS c INNER JOIN customer AS cs ON c.CustomerId=cs.Id WHERE c.ShopUserId=? ORDER BY c.Created DESC  LIMIT ? OFFSET ?");
+        $orders_query_obj = $this->conn->prepare($orders_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $orders_query_obj->bind_param("sss",$this->chat_shop_id,$this->limit,$offset_page);
+        $units=array();
+        if($orders_query_obj->execute()){
+            $data = $orders_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+
     public function getProcessingPagination(){
         $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id WHERE  ords.Status=2 AND ords.CustomerId=? AND ords.ShopId=? ORDER BY o.Created DESC LIMIT? OFFSET?");
         $orders_query_obj = $this->conn->prepare($orders_query);
@@ -1310,7 +1382,18 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
                 $units[]=$item;
             return $units;
         }
-
+    }
+    public function getCustomerChatSearch(){
+        $query=("SELECT cs.Name,cs.Email,c.Created,cs.Picture,c.FirebaseId,c.CustomerId  FROM chatlist AS c INNER JOIN customer AS cs ON c.CustomerId=cs.Id WHERE c.ShopUserId=? AND cs.NAME LIKE ?");
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("ss",$this->user_id,$this->search);
+        $units=array();
+        if($obj->execute()){
+            $data = $obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
     }
     public function getSupplierSearch(){
         $suppliers_query=("Select * from supplier where  ShopUserId=? AND NAME LIKE ?");
@@ -1721,6 +1804,16 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         $email_query = "SELECT * from firebaseid WHERE UserId = ? AND Type=?";
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->firebase_user_id,$this->firebase_type);
+        if($usr_obj->execute()){
+            $data = $usr_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return array();
+    }
+    public function check_chat_list(){
+        $email_query = "SELECT * from chatlist WHERE ShopUserId = ? AND CustomerId=?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->chat_shop_id,$this->chat_customer_id);
         if($usr_obj->execute()){
             $data = $usr_obj->get_result();
             return $data->fetch_assoc();
