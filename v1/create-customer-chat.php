@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
     $headers = getallheaders();
 
 
-    if(!empty($data->Data)){
+    if(!empty($data->FirebaseId)){
 
         try{
 
@@ -39,32 +39,34 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $secret_key = "owt125";
             $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
 
-            $user_obj->firebase_user_id = $decoded_data->data->Id;
-            $user_obj->firebase_type = $data->Type;
-            $user_obj->firebase_data = $data->Data;
+            $user_obj->chat_customer_id = $decoded_data->data->Id;
+            $user_obj->chat_shop_id = $data->ShopId;
+            $user_obj->chat_created = $data->Created;
+            $user_obj->chat_seen = $data->Seen;
+            $user_obj->chat_firebase_id = $data->FirebaseId;
 
 
-            $token_data = $user_obj->check_firebase_id();
+            $data = $user_obj->check_chat_list();
 
-            if (!empty($token_data)) {
+            if (!empty($data)) {
                 // some data we have - insert should not go
-                $user_obj->update_firebase_id();
+                $user_obj->update_chat_list();
                 http_response_code(200);
                 echo json_encode(array(
                     "status" => 200,
                     "success" => true,
-                    "message" => "FirebaseId Update Successful"
+                    "message" => "Chat Update Successful"
 
                 ));
             } else {
 
-                if ($user_obj->create_firebase_id()) {
+                if ($user_obj->create_customer_chat()) {
 
                     http_response_code(200);
                     echo json_encode(array(
                         "status" => 200,
                         "success" => true,
-                        "message" => "FirebaseId has been created"
+                        "message" => "Chat has been created"
 
                     ));
                 } else {
