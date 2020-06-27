@@ -1192,7 +1192,7 @@ AS l ON c.Id = l.PostId WHERE c.PostId=? ORDER BY c.Created ");
     public function getPostPagination(){
         $posts_query=("SELECT p.Type,p.Id, p.Name,p.Image,p.UserId,p.Content AS Content,p.Picture AS Picture,p.Created AS Created ,p.Love AS Love 
 ,(CASE WHEN l.UserForId >0 THEN 'true' ELSE 'false' END) AS value FROM post AS p 
-LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.PostId  ORDER BY P.Created DESC LIMIT? OFFSET?");
+LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.PostId  ORDER BY p.Created DESC LIMIT? OFFSET?");
         $posts_query_obj = $this->conn->prepare($posts_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -1314,7 +1314,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
     }
     public function getDeliveriesPagination(){
-        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN Customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
