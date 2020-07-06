@@ -45,7 +45,6 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $user_obj->product_image = $data->ProductImage;
             $user_obj->product_sell_price= $data->SellPrice;
             $user_obj->product_supplier_price = $data->SupplierPrice;
-            $user_obj->product_supplier_id= $data->SupplierId;
             $user_obj->product_discount = $data->Discounts;
             $user_obj->product_unit_id = $data->UnitId;
             $user_obj->product_shop_id = $data->ShopId;

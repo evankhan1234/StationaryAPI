@@ -321,12 +321,9 @@ class Users{
     }
     public function create_product(){
 
-        $product_query = "INSERT INTO ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, SupplierId =?,UnitId =?, ShopId=?,ShopUserId=?, Status=?, Discount=?, Created =?, Stock =?, ProductCategoryId=?";
-
-
+        $product_query = "INSERT INTO ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, UnitId =?, ShopId=?,ShopUserId=?, Status=?, Discount=?, Created =?, Stock =?, ProductCategoryId=?";
         $product_obj = $this->conn->prepare($product_query);
-
-        $product_obj->bind_param("sssssssssssssss", $this->product_name, $this->product_details,$this->product_code, $this->product_image, $this->product_sell_price, $this->product_supplier_price, $this->product_supplier_id, $this->product_unit_id, $this->product_shop_id, $this->product_shop_user_id, $this->product_status, $this->product_discount, $this->product_created,  $this->product_stock, $this->product_category_type_id);
+        $product_obj->bind_param("ssssssssssssss", $this->product_name, $this->product_details,$this->product_code, $this->product_image, $this->product_sell_price, $this->product_supplier_price, $this->product_unit_id, $this->product_shop_id, $this->product_shop_user_id, $this->product_status, $this->product_discount, $this->product_created,  $this->product_stock, $this->product_category_type_id);
 
         if($product_obj->execute()){
             return true;
@@ -778,12 +775,12 @@ class Users{
 
     }
     public function update_product(){
-        $product_update_type_query=("UPDATE ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, SupplierId =?, Status=?, Discount=?, Created =?,UnitId =?, Stock =?, ShopId=?, ProductCategoryId=?,ShopUserId=? where Id=? AND ShopUserId=?");
+        $product_update_type_query=("UPDATE ".$this->product_tbl." SET Name = ?, Details = ?, ProductCode = ?, ProductImage =?, SellPrice =?,SupplierPrice =?, Status=?, Discount=?, Created =?,UnitId =?, Stock =?, ShopId=?, ProductCategoryId=?,ShopUserId=? where Id=? AND ShopUserId=?");
 
 
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
 
-        $product_update_type_obj->bind_param("sssssssssssssssss", $this->product_name, $this->product_details,$this->product_code, $this->product_image, $this->product_sell_price, $this->product_supplier_price, $this->product_supplier_id, $this->product_status, $this->product_discount, $this->product_created, $this->product_unit_id, $this->product_stock, $this->product_shop_id, $this->product_category_type_id, $this->product_shop_user_id, $this->product_id, $this->product_shop_user_id);
+        $product_update_type_obj->bind_param("ssssssssssssssss", $this->product_name, $this->product_details,$this->product_code, $this->product_image, $this->product_sell_price, $this->product_supplier_price,  $this->product_status, $this->product_discount, $this->product_created, $this->product_unit_id, $this->product_stock, $this->product_shop_id, $this->product_category_type_id, $this->product_shop_user_id, $this->product_id, $this->product_shop_user_id);
 
         if($product_update_type_obj->execute()){
             return true;
@@ -1676,14 +1673,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
     }
     public function check_order(){
 
-        //$email_query = "SELECT * from ".$this->users_tbl." WHERE Email = ?";
         $email_query = "Select * from ".$this->order_tbl." WHERE CustomerId = ? AND Created = ?";
-
-
-//        $email_query = "Select * from ".$this->users_tbl." WHERE
-//  (Email = ? AND Password = ?) OR
-//  (Password = ? AND OwnerMobileNumber = ?)";
-
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->order_customer_id,$this->order_created);
 
