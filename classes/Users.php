@@ -194,6 +194,22 @@ class Users{
   public $notice_status;
   public $notice_type;
 
+  public $system_item_code;
+  public $system_item_name;
+  public $system_shop_type;
+  public $system_sales_price;
+  public $system_purchase_price;
+  public $system_item_description;
+  public $system_picture;
+  public $system_unit_id;
+  public $system_quantity;
+  public $system_status;
+  public $system_stock;
+  public $system_discount;
+  public $system_created;
+  public $system_created_by;
+  public $system_id;
+
 
   private $conn;
   private $users_tbl;
@@ -394,6 +410,30 @@ class Users{
         }
 
         return false;
+    }
+    public function create_system_product(){
+        $supplier_query = "INSERT INTO system SET ItemCode = ?, ShopType  = ?, ItemName = ?, SalesPrice =?, PurchasePrice =?,ItemDescription =?,Picture=?, UnitId =?, Quantity=?,Status =?,Stock =?,Discount =?,Created =?,CreatedBy  =?";
+        $supplier_obj = $this->conn->prepare($supplier_query);
+        $supplier_obj->bind_param("ssssssssssssss", $this->system_item_code, $this->system_shop_type,$this->system_item_name, $this->system_sales_price, $this->system_purchase_price, $this->system_item_description, $this->system_picture, $this->system_unit_id, $this->system_quantity, $this->system_status, $this->system_stock, $this->system_discount, $this->system_created, $this->system_created_by);
+        if($supplier_obj->execute()){
+            return true;
+        }
+        else{
+            return false;
+        }
+
+    }
+    public function update_system_product(){
+        $supplier_query = "UPDATE system SET ItemCode = ?, ShopType  = ?, ItemName = ?, SalesPrice =?, PurchasePrice =?,ItemDescription =?,Picture=?, UnitId =?, Quantity=?,Status =?,Stock =?,Discount =?,Created =?,CreatedBy =? Where Id=?";
+        $supplier_obj = $this->conn->prepare($supplier_query);
+        $supplier_obj->bind_param("sssssssssssssss", $this->system_item_code, $this->system_shop_type,$this->system_item_name, $this->system_sales_price, $this->system_purchase_price, $this->system_item_description, $this->system_picture, $this->system_unit_id, $this->system_quantity, $this->system_status, $this->system_stock, $this->system_discount, $this->system_created, $this->system_created_by, $this->system_id);
+        if($supplier_obj->execute()){
+            return true;
+        }
+        else{
+            return false;
+        }
+
     }
     public function create_shop(){
 
@@ -862,14 +902,20 @@ class Users{
     public function delete_product(){
         $purchase_delete_type_query = "DELETE FROM ".$this->product_tbl."  Where Id=? and ShopUserId=? ";
         $purchase_delete_type_obj = $this->conn->prepare($purchase_delete_type_query);
-
-
         $purchase_delete_type_obj->bind_param("ss",  $this->product_id, $this->product_shop_user_id);
         if($purchase_delete_type_obj->execute()){
             return true;
         }
         return false;
-
+    }
+    public function delete_system_product(){
+        $query = "DELETE FROM system Where Id=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("s",  $this->system_id);
+        if($obj->execute()){
+            return true;
+        }
+        return false;
     }
     public function delete_wish_list(){
         $delete_type_query = "DELETE FROM wishlist Where Id=? AND ProductId =?  AND CustomerId=? AND ShopUserId=? ";
@@ -1189,7 +1235,7 @@ AS l ON c.Id = l.PostId WHERE c.PostId=? ORDER BY c.Created ");
     public function getPostPagination(){
         $posts_query=("SELECT p.Type,p.Id, p.Name,p.Image,p.UserId,p.Content AS Content,p.Picture AS Picture,p.Created AS Created ,p.Love AS Love 
 ,(CASE WHEN l.UserForId >0 THEN 'true' ELSE 'false' END) AS value FROM post AS p 
-LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.PostId  ORDER BY p.Created DESC LIMIT? OFFSET?");
+LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.PostId where p.Status=1 ORDER BY p.Created DESC LIMIT? OFFSET?");
         $posts_query_obj = $this->conn->prepare($posts_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -1358,6 +1404,22 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
         $products_query_obj->bind_param("sss",$this->user_id,$this->limit,$offset_page);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getSystemProduct(){
+        $products_query=("Select * from system where  Status=1 AND ShopType=? ORDER BY Created DESC LIMIT? OFFSET?");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $products_query_obj->bind_param("sss",$this->type,$this->limit,$offset_page);
         $units=array();
         if($products_query_obj->execute()){
             $data = $products_query_obj->get_result();
@@ -1701,6 +1763,17 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
     }
     public function check_customer_login_details(){
         $email_query = "Select * from ".$this->customer_users_tbl." WHERE Email = ? AND Password = ?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->user_email,$this->user_password);
+        if($usr_obj->execute()){
+            $data = $usr_obj->get_result();
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_admin_login_details(){
+        $email_query = "Select * from admin WHERE Email = ? AND Password = ?";
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->user_email,$this->user_password);
         if($usr_obj->execute()){
