@@ -718,6 +718,24 @@ class Users{
         }
         return false;
     }
+    public function update_in_active_shop(){
+        $post_query = "UPDATE shopusers SET Status =1 Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("s",  $this->shop_user_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_in_active_post(){
+        $post_query = "UPDATE post SET Status =1 Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("s",  $this->shop_user_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function update_chat_seen(){
         $post_query = "UPDATE chatlist SET Seen ='1' Where ShopUserId=? AND CustomerId =?";
         $post_obj = $this->conn->prepare($post_query);
@@ -910,6 +928,15 @@ class Users{
     }
     public function delete_system_product(){
         $query = "DELETE FROM system Where Id=?";
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("s",  $this->system_id);
+        if($obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function delete_post_id(){
+        $query = "DELETE FROM post Where Id=?";
         $obj = $this->conn->prepare($query);
         $obj->bind_param("s",  $this->system_id);
         if($obj->execute()){
@@ -1602,6 +1629,28 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
             return $products;
         }
 
+    }
+    public function getInActiveShop(){
+        $products_query=("Select us.Id,s.Name as ShopName,s.Address as Address,s.LicenseNumber as LicenseNumber,us.Email as Email,us.AgreementDate,us.OwnerName,us.OwnerMobileNumber,us.Picture  from shopusers as us inner join shop as s on us.Id=s.ShopUserId where  us.Status=0 order by us.Created DESC");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
+    }
+    public function getInActivePost(){
+        $products_query=("Select Id,Content,Picture,Created,Name as UserName,Image as UserImage,Type from post where Status=0");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
     }
     public function getCustomerAllShops(){
         $result= $this->conn->query("Select * from shop Where Status=1");
