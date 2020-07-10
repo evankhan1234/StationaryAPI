@@ -30,6 +30,8 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
        $user_obj->user_created_date = $data->Created;
        $user_obj->status = $data->Status;
        $user_obj->shop_type_id = $data->ShopTypeId;
+       $user_obj->user_latitude = $data->Latitude;
+       $user_obj->user_longitude = $data->Longitude;
        $user_obj->user_password = md5($data->Password);
 
        $email_data = $user_obj->check_email();

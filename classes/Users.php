@@ -104,6 +104,8 @@ class Users{
   public $user_mobile;
   public $user_shop_id;
   public $user_picture;
+  public $user_latitude;
+  public $user_longitude;
   public $user_created_date;
   public $agreement_date;
   public $status;
@@ -438,11 +440,11 @@ class Users{
     public function create_shop(){
 
     //  echo json_encode($shop_obj);
-        $shop_query = "INSERT INTO ".$this->shop_tbl." SET Name = ?, Address = ?, LicenseNumber = ?, Status =?, ShopUserId =?,Latitude='23.7926304',Longitude='90.3569598'";
+        $shop_query = "INSERT INTO ".$this->shop_tbl." SET Name = ?, Address = ?, LicenseNumber = ?, Status =?, ShopUserId =?,Latitude=?,Longitude=?";
 
         $shop_obj = $this->conn->prepare($shop_query);
 
-        $shop_obj->bind_param("sssss", $this->shop_name, $this->shop_addres, $this->shop_license_number, $this->shop_status, $this->shop_user_id);
+        $shop_obj->bind_param("sssssss", $this->shop_name, $this->shop_addres, $this->shop_license_number, $this->shop_status, $this->shop_user_id, $this->user_latitude, $this->user_longitude);
 
         if($shop_obj->execute()){
             return true;
@@ -1602,7 +1604,18 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
                 $units[]=$item;
             return $units;
         }
-
+    }
+    public function getSystemProductSearch(){
+        $products_query=("Select * from system where ShopType=? AND ItemName LIKE ?");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products_query_obj->bind_param("ss",$this->type,$this->search);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
     }
     public function getSupplier(){
         $suppliers_query=("Select * from supplier where  ShopUserId=? AND Status=1");
