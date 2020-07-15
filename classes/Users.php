@@ -212,7 +212,10 @@ class Users{
   public $system_created_by;
   public $system_id;
 
+  public $delivery_latitude;
+  public $delivery_longitude;
   public $delivery_name;
+  public $delivery_id;
   public $delivery_email;
   public $delivery_mobile;
   public $delivery_nid;
@@ -762,6 +765,24 @@ class Users{
         }
         return false;
     }
+    public function update_delivery_user_status(){
+        $post_query = "UPDATE delivery_users SET DeliveryStatus =? Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("ss",$this->delivery_delivery_stats,$this->delivery_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_delivery_user_location(){
+        $post_query = "UPDATE delivery_users SET Latitude =?,longitude=? Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("sss",$this->delivery_latitude,$this->delivery_longitude,$this->delivery_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function update_chat_seen(){
         $post_query = "UPDATE chatlist SET Seen ='1' Where ShopUserId=? AND CustomerId =?";
         $post_obj = $this->conn->prepare($post_query);
@@ -1172,6 +1193,16 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
         return $shops;
 
 
+    }
+    public function getDeliveryUser(){
+        $user_details_query=("Select * from delivery_users  where Id=?");
+        $user_details_obj = $this->conn->prepare($user_details_query);
+        $user_details_obj->bind_param("s",$this->delivery_id);
+        if($user_details_obj->execute()){
+            $data = $user_details_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
     }
     public function getProductList(){
 
