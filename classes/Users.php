@@ -212,6 +212,17 @@ class Users{
   public $system_created_by;
   public $system_id;
 
+  public $delivery_name;
+  public $delivery_email;
+  public $delivery_mobile;
+  public $delivery_nid;
+  public $delivery_password;
+  public $delivery_gender;
+  public $delivery_created;
+  public $delivery_picture;
+  public $delivery_status;
+  public $delivery_delivery_stats;
+
 
   private $conn;
   private $users_tbl;
@@ -260,6 +271,20 @@ class Users{
         $customer_query = "INSERT INTO ".$this->customer_users_tbl." SET Name = ?, Email = ?, Password = ?, MobileNumber =?, Address =?, Status =?, Picture=?, Created=?, Gender=?";
         $customer_obj = $this->conn->prepare($customer_query);
         $customer_obj->bind_param("sssssssss", $this->customer_name, $this->customer_email,$this->customer_password, $this->customer_mobile_number, $this->customer_address,$this->customer_status, $this->customer_picture, $this->customer_created, $this->customer_gender);
+
+        if($customer_obj->execute()){
+            return true;
+        }
+        else{
+            return false;
+        }
+
+        return false;
+    }
+    public function create_delivery_user(){
+        $customer_query = "INSERT INTO delivery_users SET Name = ?, Email = ?, Password = ?, MobileNumber =?, NID =?, Status =?, Picture=?, Created=?, Gender=?, DeliveryStatus=?";
+        $customer_obj = $this->conn->prepare($customer_query);
+        $customer_obj->bind_param("ssssssssss", $this->delivery_name, $this->delivery_email,$this->delivery_password, $this->delivery_mobile, $this->delivery_nid,$this->delivery_status, $this->delivery_picture, $this->delivery_created, $this->delivery_gender, $this->delivery_delivery_stats);
 
         if($customer_obj->execute()){
             return true;
@@ -622,7 +647,6 @@ class Users{
     public function update_delivery_status(){
         $delivery_query = "UPDATE orderdelivery SET OrderDetails = ?, Status = ?, DeliveryCharge = ? Where Id=? AND ShopId=? ";
         $delivery_obj = $this->conn->prepare($delivery_query);
-
         $delivery_obj->bind_param("sssss", $this->orders_orders_details, $this->orders_status, $this->orders_delivery_charge, $this->orders_id, $this->orders_shop_id);
         if($delivery_obj->execute()){
             return true;
@@ -1183,7 +1207,7 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
 
     }
     public function getWishList(){
-        $wish_query=("SELECT p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName,w.Id as WishId,w.Created as Date FROM wishlist AS w INNER JOIN product AS p ON w.ProductId=p.Id INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  w.Status=1 AND  w.CustomerId=? AND w.ShopUserId=?");
+        $wish_query=("SELECT p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName,w.Id as WishId,w.Created as Date FROM wishlist AS w INNER JOIN product AS p ON w.ProductId=p.Id INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  w.Status=1 AND  w.CustomerId=? AND w.ShopUserId=?");
         $wish_query_obj = $this->conn->prepare($wish_query);
         $wish_query_obj->bind_param("ss",$this->wish_list_customer_id,$this->wish_list_shop_user_id);
         $units=array();
@@ -1373,7 +1397,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
     }
     public function getCustomerRecentProduct(){
-        $categorys_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id  where p.Status=1 AND p.ShopUserId=? ORDER BY p.Created DESC limit 20");
+        $categorys_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id  where p.Status=1 AND p.ShopUserId=? ORDER BY p.Created DESC limit 20");
         $categorys_query_obj = $this->conn->prepare($categorys_query);
         $categorys_query_obj->bind_param("s",$this->shop_user_id);
         $units=array();
@@ -1538,7 +1562,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
     }
     public function getCustomerProductCategoryType(){
-        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=? AND p.ProductCategoryId=? LIMIT ? OFFSET ?");
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=? AND p.ProductCategoryId=? LIMIT ? OFFSET ?");
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
         $products_query_obj = $this->conn->prepare($products_query);
@@ -1553,7 +1577,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
     }
     public function getCustomerSearchProductCategoryPagination(){
-        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=?  LIMIT ? OFFSET ?");
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=?  LIMIT ? OFFSET ?");
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
         $products_query_obj = $this->conn->prepare($products_query);
@@ -1568,7 +1592,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
     }
     public function getCustomerProductCategorySearch(){
-        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=? AND p.ProductCategoryId=? AND p.Name LIKE ?");
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=? AND p.ProductCategoryId=? AND p.Name LIKE ?");
         $products_query_obj = $this->conn->prepare($products_query);
         $products_query_obj->bind_param("sss",$this->shop_user_id,$this->product_category_id,$this->search);
         $units=array();
@@ -1581,7 +1605,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
     }
     public function getCustomerProductSearch(){
-        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.SupplierId,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=?  AND p.Name LIKE ?");
+        $products_query=("Select p.Id,p.Name,p.Details,p.ProductCode,p.ProductImage,p.UnitId,p.SellPrice,p.SupplierPrice,p.ShopId,p.Stock,p.Discount,p.ShopUserId,p.Created,p.ProductCategoryId,p.Status,u.Name as UnitName from product AS p INNER JOIN unit AS u ON p.UnitId=u.Id WHERE  p.Status=1 AND p.ShopUserId=?  AND p.Name LIKE ?");
         $products_query_obj = $this->conn->prepare($products_query);
         $products_query_obj->bind_param("ss",$this->shop_user_id,$this->search);
         $units=array();
@@ -1778,6 +1802,21 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
         return array();
     }
+    public function check_email_delivery_for(){
+
+        $email_query = "Select * from delivery_users WHERE Email=?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("s", $this->delivery_email);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
     public function check_shop_id(){
 
         $email_query = "Select * from ".$this->shop_tbl." WHERE  ShopUserId=?";
@@ -1834,6 +1873,17 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
         return array();
     }
+    public function check_delivery_login_details(){
+        $email_query = "Select * from delivery_users WHERE Email = ? AND Password = ?";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->delivery_email,$this->delivery_password);
+        if($usr_obj->execute()){
+            $data = $usr_obj->get_result();
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
     public function check_admin_login_details(){
         $email_query = "Select * from admin WHERE Email = ? AND Password = ?";
         $usr_obj = $this->conn->prepare($email_query);
@@ -1850,6 +1900,21 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         $email_query = "SELECT * from ".$this->customer_users_tbl." WHERE (Email = ? ) OR ( MobileNumber = ?)";
         $usr_obj = $this->conn->prepare($email_query);
         $usr_obj->bind_param("ss", $this->customer_email, $this->customer_mobile_number);
+
+        if($usr_obj->execute()){
+
+            $data = $usr_obj->get_result();
+
+            return $data->fetch_assoc();
+        }
+
+        return array();
+    }
+    public function check_email_delivery(){
+
+        $email_query = "SELECT * from delivery_users WHERE (Email = ? ) OR ( MobileNumber = ?)";
+        $usr_obj = $this->conn->prepare($email_query);
+        $usr_obj->bind_param("ss", $this->delivery_email, $this->delivery_mobile);
 
         if($usr_obj->execute()){
 
