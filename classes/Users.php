@@ -1231,6 +1231,16 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
         }
         return NULL;
     }
+    public function getShopByIdLatitude(){
+        $user_details_query=("Select * from shop  where ShopUserId=?");
+        $user_details_obj = $this->conn->prepare($user_details_query);
+        $user_details_obj->bind_param("s",$this->shop_user_id);
+        if($user_details_obj->execute()){
+            $data = $user_details_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getProductList(){
 
         $result=("Select * from product where  ShopUserId=?");
@@ -1532,6 +1542,22 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
             while ($item=$data->fetch_assoc())
                 $orders[]=$item;
             return $orders;
+        }
+
+    }
+    public function getPendingOrderPagination(){
+        $deliveries_query=("SELECT o.Id,o.ShopId, o.CustomerId,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1  ORDER BY o.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query_obj = $this->conn->prepare($deliveries_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $deliveries_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $units=array();
+        if($deliveries_query_obj->execute()){
+            $data = $deliveries_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
         }
 
     }
