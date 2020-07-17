@@ -172,6 +172,7 @@ class Users{
 
   public $orders_customer_id;
   public $orders_shop_id;
+  public $orders_delivery_user_id;
   public $orders_shop_user_id;
   public $orders_order_id;
   public $orders_discount;
@@ -651,6 +652,16 @@ class Users{
         $delivery_query = "UPDATE orderdelivery SET OrderDetails = ?, Status = ?, DeliveryCharge = ? Where Id=? AND ShopId=? ";
         $delivery_obj = $this->conn->prepare($delivery_query);
         $delivery_obj->bind_param("sssss", $this->orders_orders_details, $this->orders_status, $this->orders_delivery_charge, $this->orders_id, $this->orders_shop_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_delivery_status_for_delivery_user(){
+        $delivery_query = "UPDATE orderdelivery SET OrderDetails = ?, Status = ?, DeliveryCharge = ?,DeliveryId = ? Where Id=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("sssss", $this->orders_orders_details, $this->orders_status, $this->orders_delivery_charge,$this->orders_delivery_user_id, $this->orders_id);
         if($delivery_obj->execute()){
             return true;
         }
