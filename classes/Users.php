@@ -1086,6 +1086,22 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
         }
         return NULL;
     }
+    public function getDeliveryCustomerOrderCount(){
+        $shop_user_details_query=("SELECT  SUM(Pending) AS Pending,SUM(Processing) AS Processing ,SUM(Delivered) AS Delivered FROM(
+SELECT COUNT(*) AS Pending, 0 Processing,0 Delivered   FROM orders  WHERE STATUS=1 
+UNION ALL
+SELECT 0 Pending,COUNT(*) AS Processing, 0 Delivered  FROM orderdelivery  WHERE STATUS=2 
+UNION ALL
+SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE STATUS=3 
+) qu");
+        $shop_user_details_obj = $this->conn->prepare($shop_user_details_query);
+
+        if($shop_user_details_obj->execute()){
+            $data = $shop_user_details_obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getCustomerUserInformation(){
         $user_details_query=("Select * from customer where Id=?");
         $user_details_obj = $this->conn->prepare($user_details_query);
@@ -1273,6 +1289,17 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
             return $units;
         }
     }
+    public function getDeliveryLastFiveSales()
+    {
+
+        $result= $this->conn->query("SELECT Total FROM orderdelivery ORDER BY Created DESC LIMIT 5");
+        $units=array();
+        while ($item=$result->fetch_assoc())
+            $units[]=$item;
+        return $units;
+    }
+
+
     public function getCommentsList(){
         $comments_query=("SELECT c.Id,c.Type, c.Content,c.UserImage,c.UserName,c.Created,c.Love
 ,(CASE WHEN l.UserForId >0 THEN 'true' ELSE 'false' END) AS IsValue FROM comments AS c 
@@ -1456,10 +1483,38 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
 
     }
+    public function getDeliveryProcessingPagination(){
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.Status=2 ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query_obj = $this->conn->prepare($deliveries_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $deliveries_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $units=array();
+        if($deliveries_query_obj->execute()){
+            $data = $deliveries_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getOrders(){
         $orders_query=("SELECT o.Id, o.CustomerId,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1 AND o.ShopId=? ORDER BY o.Created DESC");
         $orderss_query_obj = $this->conn->prepare($orders_query);
         $orderss_query_obj->bind_param("s",$this->user_id);
+        $orders=array();
+        if($orderss_query_obj->execute()){
+            $data = $orderss_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $orders[]=$item;
+            return $orders;
+        }
+
+    }
+    public function getDeliveryPendingOrders(){
+        $orders_query=("SELECT o.Id,o.ShopId, o.CustomerId,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,c.MobileNumber,c.Email,c.Picture FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1  ORDER BY o.Created DESC");
+        $orderss_query_obj = $this->conn->prepare($orders_query);
         $orders=array();
         if($orderss_query_obj->execute()){
             $data = $orderss_query_obj->get_result();

@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $iss = "localhost";
             $iat = time();
             $nbf = $iat + 10;
-            $exp = $iat + 31104000;
+            $exp = $iat + 157680000;
             $aud = "myusers";
             $user_arr_data = array(
                 "Id" => $user_data['Id'],
