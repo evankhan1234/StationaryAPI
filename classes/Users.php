@@ -351,9 +351,9 @@ class Users{
     }
     public function create_delivery(){
 
-        $delivery_query = "INSERT INTO orderdelivery SET CustomerId = ?, ShopId = ?, OrderId = ?, Discount =?, GrandTotal =?,PaidAmount =?, DueAmount =?, Total=?, InvoiceNumber=?, OrderDetails =?,Created =?, DeliveryCharge =?, Status=?";
+        $delivery_query = "INSERT INTO orderdelivery SET CustomerId = ?, ShopId = ?, OrderId = ?, Discount =?, GrandTotal =?,PaidAmount =?, DueAmount =?, Total=?, InvoiceNumber=?, OrderDetails =?,Created =?, DeliveryCharge =?, Status=?, Latitude=?, Longitude=?";
         $delivery_obj = $this->conn->prepare($delivery_query);
-        $delivery_obj->bind_param("sssssssssssss", $this->orders_customer_id, $this->orders_shop_id,$this->orders_order_id, $this->orders_discount, $this->orders_grand_total, $this->orders_paid_amount, $this->orders_due_amount, $this->orders_total, $this->orders_invoice_number, $this->orders_orders_details, $this->orders_created, $this->orders_delivery_charge, $this->orders_status);
+        $delivery_obj->bind_param("sssssssssssssss", $this->orders_customer_id, $this->orders_shop_id,$this->orders_order_id, $this->orders_discount, $this->orders_grand_total, $this->orders_paid_amount, $this->orders_due_amount, $this->orders_total, $this->orders_invoice_number, $this->orders_orders_details, $this->orders_created, $this->orders_delivery_charge, $this->orders_status, $this->latitude, $this->longitude);
 
         if($delivery_obj->execute()){
             return true;
@@ -1505,11 +1505,34 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
 
     }
     public function getDeliveryProcessingPagination(){
-        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.Status=2 ORDER BY od.Created DESC LIMIT? OFFSET? ");
+      //  $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.Status=2 ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query=("SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,
+od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId, 
+( 3959 * ACOS( COS( RADIANS(?) ) * COS( RADIANS( od.Latitude ) )* COS( RADIANS( od.Longitude ) - RADIANS(?) ) + 
+SIN( RADIANS(?) ) 
+* SIN( RADIANS( od.Latitude ) ) ) ) AS distance   
+FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c 
+ON od.CustomerId = c.Id WHERE od.Status=2 ORDER BY od.Created DESC LIMIT ? OFFSET ? ");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
-        $deliveries_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $deliveries_query_obj->bind_param("sssss",$this->latitude,$this->longitude,$this->latitude,$this->limit,$offset_page);
+        $units=array();
+        if($deliveries_query_obj->execute()){
+            $data = $deliveries_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getDeliveryFinishPagination(){
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.Status=3 AND od.DeliveryId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query_obj = $this->conn->prepare($deliveries_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $deliveries_query_obj->bind_param("sss",$this->delivery_id,$this->limit,$offset_page);
         $units=array();
         if($deliveries_query_obj->execute()){
             $data = $deliveries_query_obj->get_result();
@@ -1551,6 +1574,29 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
         $deliveries_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $units=array();
+        if($deliveries_query_obj->execute()){
+            $data = $deliveries_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getPendingOrderPaginationByGoogleMaps(){
+        $deliveries_query=("SELECT o.Id,o.ShopId, o.CustomerId,o.Created,o.OrderAddress,o.OrderLatitude,o.OrderLongitude,o.OrderLatitude,o.OrderArea,c.Name,
+c.MobileNumber,c.Email,c.Picture, 
+( 3959 * ACOS( COS( RADIANS(?) ) * COS( RADIANS( o.OrderLatitude ) )* COS( RADIANS( o.OrderLongitude ) - RADIANS(?) ) + 
+SIN( RADIANS(?) ) 
+* SIN( RADIANS( o.OrderLatitude ) ) ) ) AS distance 
+FROM orders AS o INNER JOIN customer AS c ON o.CustomerId=c.Id  WHERE  o.Status=1  
+HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ? 
+");
+        $deliveries_query_obj = $this->conn->prepare($deliveries_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $deliveries_query_obj->bind_param("sssss",$this->latitude,$this->longitude,$this->latitude,$this->limit,$offset_page);
         $units=array();
         if($deliveries_query_obj->execute()){
             $data = $deliveries_query_obj->get_result();

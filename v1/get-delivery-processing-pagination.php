@@ -41,7 +41,8 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
         $user_obj->limit = $data->limit;
         $user_obj->page = $data->page;
-
+        $user_obj->latitude = $data->Latitude;
+        $user_obj->longitude = $data->Longititude;
 
         $seliveries=$user_obj->getDeliveryProcessingPagination();
 

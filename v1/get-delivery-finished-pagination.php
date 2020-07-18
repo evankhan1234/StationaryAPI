@@ -41,29 +41,28 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
         $user_obj->limit = $data->limit;
         $user_obj->page = $data->page;
-        $user_obj->latitude = $data->Latitude;
-        $user_obj->longitude = $data->Longititude;
+        $user_obj->delivery_id = $decoded_data->data->Id;
 
-        $orders=$user_obj->getPendingOrderPaginationByGoogleMaps();
+        $seliveries=$user_obj->getDeliveryFinishPagination();
 
-        if($orders){
+        if($seliveries){
 
             http_response_code(200); // ok
             echo json_encode(array(
                 "status" => 200,
                 "success" => true,
-                "data" => $orders,
-                "message" => "Orders Found"
+                "data" => $seliveries,
+                "message" => "Deliveries Found"
             ));
         }else{
 
-            http_response_code(200); //server error
+            http_response_code(500); //server error
             echo json_encode(array(
 
                 "status" => 200,
                 "success" => true,
-                "data" => $orders,
-                "message" => "No Orders Found"
+                "data" => $seliveries,
+                "message" => "No Deliveries Found"
             ));
         }
     }catch(Exception $ex){
