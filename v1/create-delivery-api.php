@@ -53,7 +53,8 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             $user_obj->orders_created = $data->Created;
             $user_obj->orders_delivery_charge = $data->DeliveryCharge;
             $user_obj->orders_status = $data->Status;
-
+            $user_obj->latitude = $data->Latitude;
+            $user_obj->longitude = $data->Longitude;
             $delivery_data = $user_obj->check_delivery();
 
             if (!empty($delivery_data))
