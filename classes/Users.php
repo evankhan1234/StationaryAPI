@@ -1044,6 +1044,16 @@ class Users{
         }
         return NULL;
     }
+    public function getDeliveryCustomerOrdersInformation(){
+        $query=("SELECT Discount,Total,InvoiceNumber,DeliveryCharge FROM orderdelivery  WHERE  OrderId=?");
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("s",$this->orders_id);
+        if($obj->execute()){
+            $data = $obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getTokenByUser(){
         $query=("SELECT Token FROM firebasetoken  WHERE  UserId=?  AND Type=?");
         $obj = $this->conn->prepare($query);
@@ -1507,7 +1517,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
     public function getDeliveryProcessingPagination(){
       //  $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.Status=2 ORDER BY od.Created DESC LIMIT? OFFSET? ");
         $deliveries_query=("SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,
-od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId, 
+od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId,od.OrderId, 
 ( 3959 * ACOS( COS( RADIANS(?) ) * COS( RADIANS( od.Latitude ) )* COS( RADIANS( od.Longitude ) - RADIANS(?) ) + 
 SIN( RADIANS(?) ) 
 * SIN( RADIANS( od.Latitude ) ) ) ) AS distance   
@@ -1887,6 +1897,18 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
         $orders_query_obj = $this->conn->prepare($orders_query);
         $orders_query_obj->bind_param("ss",$this->user_id,$this->orders_order_id);
 
+        $products=array();
+        if($orders_query_obj->execute()){
+            $data = $orders_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
+    }
+    public function getCustomerOrderByDeliveryMan(){
+        $orders_query=("Select * from orderdetails where OrderStatus=2 AND OrderId=?");
+        $orders_query_obj = $this->conn->prepare($orders_query);
+        $orders_query_obj->bind_param("s",$this->orders_order_id);
         $products=array();
         if($orders_query_obj->execute()){
             $data = $orders_query_obj->get_result();
