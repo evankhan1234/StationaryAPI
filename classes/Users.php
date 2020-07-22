@@ -185,6 +185,7 @@ class Users{
   public $orders_created;
   public $orders_delivery_charge;
   public $orders_status;
+  public $orders_reason;
   public $orders_quantity;
   public $orders_id;
   public $orders_details_id;
@@ -671,8 +672,46 @@ class Users{
     public function update_customer_order_status(){
         $delivery_query = "UPDATE orders SET Status = ? Where Id=? AND ShopId=? ";
         $delivery_obj = $this->conn->prepare($delivery_query);
-
         $delivery_obj->bind_param("sss", $this->orders_status, $this->orders_id, $this->orders_shop_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function update_cancel_customer_order_status(){
+        $delivery_query = "UPDATE orders SET Status = ? Where Id=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("ss", $this->orders_status, $this->orders_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function update_cancel_customer_order_delivery_status(){
+        $delivery_query = "UPDATE orderdelivery SET Status = ? Where OrderId=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("ss", $this->orders_status, $this->orders_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_return_order_status(){
+        $delivery_query = "UPDATE orderdetails SET ReturnProduct = ?,ReturnReason=? Where Id=? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("sss", $this->orders_status, $this->orders_reason, $this->orders_id);
+        if($delivery_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
+    public function update_return_order_delivery_status(){
+        $delivery_query = "UPDATE orderdelivery SET GrandTotal = ? ,Total=? Where OrderId =? ";
+        $delivery_obj = $this->conn->prepare($delivery_query);
+        $delivery_obj->bind_param("sss", $this->orders_total, $this->orders_total ,$this->orders_id);
         if($delivery_obj->execute()){
             return true;
         }
@@ -1537,6 +1576,26 @@ ON od.CustomerId = c.Id WHERE od.Status=2 ORDER BY od.Created DESC LIMIT ? OFFSE
         }
 
     }
+
+
+    public function getOwnDeliveryManDeliveriesPagination(){
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.DeliveryId=? AND od.Status=3 ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query_obj = $this->conn->prepare($deliveries_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $deliveries_query_obj->bind_param("sss",$this->user_id,$this->limit,$offset_page);
+        $units=array();
+        if($deliveries_query_obj->execute()){
+            $data = $deliveries_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+
+
     public function getDeliveryFinishPagination(){
         $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.Status=3 AND od.DeliveryId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
