@@ -1131,6 +1131,16 @@ class Users{
         }
         return NULL;
     }
+
+    public function getDeliveryCharge(){
+        $query=("SELECT Amount FROM charge");
+        $obj = $this->conn->prepare($query);
+        if($obj->execute()){
+            $data = $obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getShopUserCountStore(){
         $shop_user_details_query=("SELECT  SUM(product) AS Product,SUM(supplier) AS Supplier ,SUM(purchase) AS Purchase ,SUM(category) AS Category FROM (SELECT COUNT(*) AS product,0 supplier,0 purchase,0 category FROM product WHERE STATUS=1 AND ShopUserId=?
  UNION ALL
