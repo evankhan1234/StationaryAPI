@@ -622,6 +622,15 @@ class Users{
         }
         return false;
     }
+    public function update_delivery_user_details(){
+        $product_update_type_query = "UPDATE delivery_users SET Name = ?, Picture = ?, NID = ?, Gender = ? Where Id=?";
+        $product_update_type_obj = $this->conn->prepare($product_update_type_query);
+        $product_update_type_obj->bind_param("sssss", $this->delivery_name, $this->delivery_picture, $this->delivery_nid, $this->delivery_gender, $this->delivery_id);
+        if($product_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function update_shop_user_details_for(){
         $query = "UPDATE shopusers SET OwnerName = ?, OwnerAddress = ?, Picture = ? Where Id=?";
         $obj = $this->conn->prepare($query);
@@ -635,6 +644,15 @@ class Users{
         $product_update_type_query = "UPDATE customer SET Password = ? Where Id=?";
         $product_update_type_obj = $this->conn->prepare($product_update_type_query);
         $product_update_type_obj->bind_param("ss", $this->customer_password, $this->customer_id);
+        if($product_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_delivery_user_passwords(){
+        $product_update_type_query = "UPDATE delivery_users SET Password = ? Where Id=?";
+        $product_update_type_obj = $this->conn->prepare($product_update_type_query);
+        $product_update_type_obj->bind_param("ss", $this->delivery_password, $this->delivery_id);
         if($product_update_type_obj->execute()){
             return true;
         }
@@ -1579,7 +1597,7 @@ ON od.CustomerId = c.Id WHERE od.Status=2 ORDER BY od.Created DESC LIMIT ? OFFSE
 
 
     public function getOwnDeliveryManDeliveriesPagination(){
-        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.DeliveryId=? AND od.Status=3 ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.OrderId,od.ShopId,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.DeliveryId=? AND od.Status=3 ORDER BY od.Created DESC LIMIT? OFFSET? ");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
