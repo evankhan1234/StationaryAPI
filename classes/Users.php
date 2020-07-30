@@ -1566,7 +1566,7 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
     }
     public function getDeliveriesPagination(){
-        $deliveries_query=(" SELECT c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
+        $deliveries_query=(" SELECT od.OrderId,c.Name,c.Email,c.MobileNumber,c.Picture,orderby.OrderLatitude,orderby.OrderLongitude,od.Id,od.InvoiceNumber,od.DeliveryCharge,od.OrderDetails,od.Status,od.Created,od.CustomerId  FROM orderdelivery AS od INNER JOIN orders AS orderby ON od.OrderId=orderby.Id INNER JOIN customer c ON od.CustomerId = c.Id WHERE od.ShopId=? ORDER BY od.Created DESC LIMIT? OFFSET? ");
         $deliveries_query_obj = $this->conn->prepare($deliveries_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
