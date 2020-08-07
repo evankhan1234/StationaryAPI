@@ -824,6 +824,15 @@ class Users{
         }
         return false;
     }
+    public function update_in_active_shop_name(){
+        $post_query = "UPDATE shop SET Status =1 Where ShopUserId=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("s",  $this->shop_user_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function update_in_active_post(){
         $post_query = "UPDATE post SET Status =1 Where Id=?";
         $post_obj = $this->conn->prepare($post_query);
