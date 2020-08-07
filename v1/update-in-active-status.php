@@ -43,6 +43,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
             if($user_obj->update_in_active_shop()){
 
+                $user_obj->update_in_active_shop_name();
                 http_response_code(200); // ok
                 echo json_encode(array(
                     "status" => 200,
