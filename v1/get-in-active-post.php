@@ -21,10 +21,10 @@ $connection = $db->connect();
 
 $user_obj = new Users($connection);
 
-if($_SERVER['REQUEST_METHOD'] === "GET"){
+if($_SERVER['REQUEST_METHOD'] === "POST"){
 
 
-
+    $data = json_decode(file_get_contents("php://input"));
     //  $user_obj->user_email = $data->Email;
     $headers = getallheaders();
 
@@ -41,7 +41,8 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
 
         $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
 
-
+        $user_obj->limit = $data->limit;
+        $user_obj->page = $data->page;
         $shops=$user_obj->getInActivePost();
 
         if($shops){
