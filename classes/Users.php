@@ -1954,15 +1954,21 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
         }
     }
     public function getInActivePost(){
-        $products_query=("Select Id,Content,Picture,Created,Name as UserName,Image as UserImage,Type from post where Status=0");
-        $products_query_obj = $this->conn->prepare($products_query);
-        $products=array();
-        if($products_query_obj->execute()){
-            $data = $products_query_obj->get_result();
+        $products_query=("Select * from post where Status=0 ORDER BY Created DESC LIMIT? OFFSET?");
+        $query_obj = $this->conn->prepare($products_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $query_obj->bind_param("ss",$this->limit,$offset_page);
+        $posts=array();
+        if($query_obj->execute()){
+            $data = $query_obj->get_result();
+
             while ($item=$data->fetch_assoc())
-                $products[]=$item;
-            return $products;
+                $posts[]=$item;
+            return $posts;
         }
+
+        //
     }
     public function getCustomerAllShops(){
         $result= $this->conn->query("Select * from shop Where Status=1");
