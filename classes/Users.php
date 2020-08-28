@@ -833,6 +833,25 @@ class Users{
         }
         return false;
     }
+
+    public function update_active_shop(){
+        $post_query = "UPDATE shopusers SET Status =0 Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("s",  $this->shop_user_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
+    public function update_active_shop_name(){
+        $post_query = "UPDATE shop SET Status =0 Where ShopUserId=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("s",  $this->shop_user_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function update_in_active_post(){
         $post_query = "UPDATE post SET Status =1 Where Id=?";
         $post_obj = $this->conn->prepare($post_query);
@@ -1944,6 +1963,17 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
     }
     public function getInActiveShop(){
         $products_query=("Select us.Id,s.Name as ShopName,s.Address as Address,s.LicenseNumber as LicenseNumber,us.Email as Email,us.AgreementDate,us.OwnerName,us.OwnerMobileNumber,us.Picture  from shopusers as us inner join shop as s on us.Id=s.ShopUserId where  us.Status=0 order by us.Created DESC");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $products=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $products[]=$item;
+            return $products;
+        }
+    }
+    public function getActiveShop(){
+        $products_query=("Select us.Id,s.Name as ShopName,s.Address as Address,s.LicenseNumber as LicenseNumber,us.Email as Email,us.AgreementDate,us.OwnerName,us.OwnerMobileNumber,us.Picture  from shopusers as us inner join shop as s on us.Id=s.ShopUserId where  s.Status=1 order by us.Created DESC");
         $products_query_obj = $this->conn->prepare($products_query);
         $products=array();
         if($products_query_obj->execute()){

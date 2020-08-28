@@ -23,8 +23,7 @@ $user_obj = new Users($connection);
 
 if($_SERVER['REQUEST_METHOD'] === "GET"){
 
-    // body
-    $data = json_decode(file_get_contents("php://input"));
+
 
     //  $user_obj->user_email = $data->Email;
     $headers = getallheaders();
@@ -32,32 +31,37 @@ if($_SERVER['REQUEST_METHOD'] === "GET"){
 
 
 
+
     try{
 
 
+        $jwt = $headers["Authorization"];
+
+        $secret_key = "owt125";
+
+        $decoded_data = JWT::decode($jwt, $secret_key, array('HS512'));
 
 
-//            $datas = $user_obj->check_emails();
+        $shops=$user_obj->getActiveShop();
 
-        $units=$user_obj->getUnit();
-
-        if($units){
+        if($shops){
 
             http_response_code(200); // ok
             echo json_encode(array(
                 "status" => 200,
                 "success" => true,
-                "data" => $units,
-                "message" => "Units Found"
+                "data" => $shops,
+                "message" => "Shop Found"
             ));
         }else{
 
             http_response_code(200); //server error
             echo json_encode(array(
 
-                "status" => 500,
-                "success" => false,
-                "message" => "No Units Found"
+                "status" => 200,
+                "success" => true,
+                "data" => $shops,
+                "message" => "No Shop Found"
             ));
         }
     }catch(Exception $ex){
