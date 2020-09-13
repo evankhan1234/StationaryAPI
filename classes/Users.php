@@ -843,6 +843,15 @@ class Users{
         }
         return false;
     }
+    public function update_customer_status(){
+        $post_query = "UPDATE customer SET Status =? Where Id=?";
+        $post_obj = $this->conn->prepare($post_query);
+        $post_obj->bind_param("ss",$this->status,$this->customer_id);
+        if($post_obj->execute()){
+            return true;
+        }
+        return false;
+    }
     public function update_active_shop_name(){
         $post_query = "UPDATE shop SET Status =0 Where ShopUserId=?";
         $post_obj = $this->conn->prepare($post_query);
@@ -1777,6 +1786,22 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
         }
 
     }
+    public function getAdminSystemProduct(){
+        $products_query=("Select * from system where  ShopType=? ORDER BY Created DESC LIMIT? OFFSET?");
+        $products_query_obj = $this->conn->prepare($products_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $products_query_obj->bind_param("sss",$this->type,$this->limit,$offset_page);
+        $units=array();
+        if($products_query_obj->execute()){
+            $data = $products_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getProductCategoryTypeExtraSearch(){
         $categorys_query=("Select * from product_category_type where  ShopUserId=? AND NAME LIKE ?");
         $categorys_query_obj = $this->conn->prepare($categorys_query);
@@ -1985,6 +2010,23 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
     }
     public function getInActivePost(){
         $products_query=("Select * from post where Status=0 ORDER BY Created DESC LIMIT? OFFSET?");
+        $query_obj = $this->conn->prepare($products_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $query_obj->bind_param("ss",$this->limit,$offset_page);
+        $posts=array();
+        if($query_obj->execute()){
+            $data = $query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $posts[]=$item;
+            return $posts;
+        }
+
+        //
+    }
+    public function getAllCustomerList(){
+        $products_query=("Select * from customer ORDER BY Created DESC LIMIT? OFFSET?");
         $query_obj = $this->conn->prepare($products_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
