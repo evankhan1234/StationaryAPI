@@ -1153,6 +1153,16 @@ class Users{
         }
         return NULL;
     }
+    public function getCustomerOrdersInformationByAdmin(){
+        $query=("SELECT Discount,Total,PaidAmount,DueAmount,InvoiceNumber,OrderDetails,DeliveryCharge FROM orderdelivery  WHERE   OrderId=?");
+        $obj = $this->conn->prepare($query);
+        $obj->bind_param("s",$this->orders_id);
+        if($obj->execute()){
+            $data = $obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getDeliveryCustomerOrdersInformation(){
         $query=("SELECT Discount,Total,InvoiceNumber,DeliveryCharge FROM orderdelivery  WHERE  OrderId=?");
         $obj = $this->conn->prepare($query);
@@ -1557,6 +1567,22 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
 
     }
+    public function getPendingPaginationByAdmin(){
+        $orders_query=("Select o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created from orders as o inner join customer as c on o.CustomerId=c.Id where  o.Status=1  ORDER BY o.Created DESC  LIMIT? OFFSET?");
+        $orders_query_obj = $this->conn->prepare($orders_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $orders_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $units=array();
+        if($orders_query_obj->execute()){
+            $data = $orders_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getChatListPagination(){
         $orders_query=("SELECT cs.Name,cs.Email,c.Created,cs.Picture,c.FirebaseId,c.CustomerId  FROM chatlist AS c INNER JOIN customer AS cs ON c.CustomerId=cs.Id WHERE c.ShopUserId=? ORDER BY c.Created DESC  LIMIT ? OFFSET ?");
         $orders_query_obj = $this->conn->prepare($orders_query);
@@ -1589,12 +1615,45 @@ LEFT JOIN (SELECT * FROM love WHERE UserForId =? AND Type=? ) AS l ON p.Id = l.P
         }
 
     }
+    public function getProcessingPaginationByAdmin(){
+        $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id WHERE  ords.Status=2  ORDER BY o.Created DESC LIMIT? OFFSET?");
+        $orders_query_obj = $this->conn->prepare($orders_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $orders_query_obj->bind_param("ss",$this->limit,$offset_page);
+        $units=array();
+        if($orders_query_obj->execute()){
+            $data = $orders_query_obj->get_result();
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
     public function getDeliveredPagination(){
         $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id WHERE  ords.Status=3 AND ords.CustomerId=? AND ords.ShopId=? ORDER BY ords.Created DESC LIMIT? OFFSET?");
         $orders_query_obj = $this->conn->prepare($orders_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
         $orders_query_obj->bind_param("ssss",$this->orders_customer_id,$this->orders_shop_user_id,$this->limit,$offset_page);
+        $units=array();
+        if($orders_query_obj->execute()){
+            $data = $orders_query_obj->get_result();
+
+            while ($item=$data->fetch_assoc())
+                $units[]=$item;
+            return $units;
+        }
+
+    }
+    public function getDeliveredPaginationByAdmin(){
+        $orders_query=("SELECT o.Id,c.Name,c.MobileNumber,c.Email,c.Picture,o.OrderAddress,o.OrderArea,o.Created FROM orderdelivery
+ AS ords INNER JOIN orders AS o ON ords.OrderId=o.Id INNER JOIN customer AS c ON o.CustomerId=c.Id
+  WHERE  ords.Status=3  ORDER BY ords.Created DESC LIMIT? OFFSET?");
+        $orders_query_obj = $this->conn->prepare($orders_query);
+        $page=$this->page-1;
+        $offset_page=$this->limit*$page;
+        $orders_query_obj->bind_param("ss",$this->limit,$offset_page);
         $units=array();
         if($orders_query_obj->execute()){
             $data = $orders_query_obj->get_result();
