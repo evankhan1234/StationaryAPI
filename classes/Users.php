@@ -191,6 +191,7 @@ class Users{
   public $orders_details_id;
   public $orders_details_shop_id;
 
+  public $notice_id;
   public $notice_title;
   public $notice_body;
   public $notice_image;
@@ -956,6 +957,20 @@ class Users{
         return false;
 
     }
+    public function update_notice(){
+
+        $supplier_update_type_query=("UPDATE notice SET Title = ?, Content = ?, Image = ?, Created =? where Id=?");
+
+        $supplier_update_type_obj = $this->conn->prepare($supplier_update_type_query);
+
+        $supplier_update_type_obj->bind_param("sssss", $this->notice_title, $this->notice_body,$this->notice_image, $this->notice_created,$this->notice_id);
+
+        if($supplier_update_type_obj->execute()){
+            return true;
+        }
+        return false;
+
+    }
     public function update_own_post(){
 
         $post_update_type_query=("UPDATE post SET Name = ?, Image = ?, Content = ?, Picture =? where Type=? and UserId=? and Id=?");
@@ -1195,6 +1210,20 @@ class Users{
         }
         return NULL;
     }
+
+    public function getProductAndCustomerCount(){
+        $query=("SELECT  SUM(product) AS Product,SUM(customer) AS Customer  FROM 
+(SELECT COUNT(*) AS product,0 customer FROM product WHERE STATUS=1
+ UNION ALL
+  SELECT 0 product,COUNT(*) AS Customer FROM customer WHERE STATUS=1  
+  ) qu");
+        $obj = $this->conn->prepare($query);
+        if($obj->execute()){
+            $data = $obj->get_result();
+            return $data->fetch_assoc();
+        }
+        return NULL;
+    }
     public function getCustomerOrderCount(){
         $shop_user_details_query=("SELECT  SUM(Pending) AS Pending,SUM(Processing) AS Processing ,SUM(Delivered) AS Delivered FROM(
 SELECT COUNT(*) AS Pending, 0 Processing,0 Delivered   FROM orders  WHERE STATUS=1 AND ShopId=? 
@@ -1310,11 +1339,11 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
         return $units;
     }
     public function getNotice(){
-        $result=("Select * from notice where  Types=? order by Created DESC  LIMIT? OFFSET?");
+        $result=("Select * from notice order by Created DESC  LIMIT? OFFSET?");
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
         $products_query_obj = $this->conn->prepare($result);
-        $products_query_obj->bind_param("sss",$this->notice_type,$this->limit,$offset_page);
+        $products_query_obj->bind_param("ss",$this->limit,$offset_page);
         $products=array();
         if($products_query_obj->execute()){
             $data = $products_query_obj->get_result();
