@@ -1334,6 +1334,13 @@ SELECT 0 Pending, 0 Processing,COUNT(*) AS Delivered FROM orderdelivery  WHERE S
 
 
     }
+    public function getTokenList(){
+        $result= $this->conn->query("Select * from firebasetoken");
+        $units=array();
+        while ($item=$result->fetch_assoc())
+            $units[]=$item;
+        return $units;
+    }
     public function getUnit(){
         $result= $this->conn->query("Select * from unit");
         $units=array();
