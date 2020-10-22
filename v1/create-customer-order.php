@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         {
             $datas = $user_obj->check_order();
             $id=$datas["Id"];
-            $user_obj->create_order_details();
+            //$user_obj->create_order_details();
             foreach ($data->data as $val)
             {
                 $user_obj->order_id = $id;
