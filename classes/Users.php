@@ -445,7 +445,7 @@ class Users{
         return false;
     }
     public function create_system_product(){
-        $supplier_query = "INSERT INTO system SET ItemCode = ?, ShopType  = ?, ItemName = ?, SalesPrice =?, PurchasePrice =?,ItemDescription =?,Picture=?, UnitId =?, Quantity=?,Status =?,Stock =?,Discount =?,Created =?,CreatedBy  =?";
+        $supplier_query = "INSERT INTO `system` SET ItemCode = ?, ShopType  = ?, ItemName = ?, SalesPrice =?, PurchasePrice =?,ItemDescription =?,Picture=?, UnitId =?, Quantity=?,Status =?,Stock =?,Discount =?,Created =?,CreatedBy  =?";
         $supplier_obj = $this->conn->prepare($supplier_query);
         $supplier_obj->bind_param("ssssssssssssss", $this->system_item_code, $this->system_shop_type,$this->system_item_name, $this->system_sales_price, $this->system_purchase_price, $this->system_item_description, $this->system_picture, $this->system_unit_id, $this->system_quantity, $this->system_status, $this->system_stock, $this->system_discount, $this->system_created, $this->system_created_by);
         if($supplier_obj->execute()){
@@ -457,7 +457,7 @@ class Users{
 
     }
     public function update_system_product(){
-        $supplier_query = "UPDATE system SET ItemCode = ?, ShopType  = ?, ItemName = ?, SalesPrice =?, PurchasePrice =?,ItemDescription =?,Picture=?, UnitId =?, Quantity=?,Status =?,Stock =?,Discount =?,Created =?,CreatedBy =? Where Id=?";
+        $supplier_query = "UPDATE `system` SET ItemCode = ?, ShopType  = ?, ItemName = ?, SalesPrice =?, PurchasePrice =?,ItemDescription =?,Picture=?, UnitId =?, Quantity=?,Status =?,Stock =?,Discount =?,Created =?,CreatedBy =? Where Id=?";
         $supplier_obj = $this->conn->prepare($supplier_query);
         $supplier_obj->bind_param("sssssssssssssss", $this->system_item_code, $this->system_shop_type,$this->system_item_name, $this->system_sales_price, $this->system_purchase_price, $this->system_item_description, $this->system_picture, $this->system_unit_id, $this->system_quantity, $this->system_status, $this->system_stock, $this->system_discount, $this->system_created, $this->system_created_by, $this->system_id);
         if($supplier_obj->execute()){
@@ -1094,7 +1094,7 @@ class Users{
         return false;
     }
     public function delete_system_product(){
-        $query = "DELETE FROM system Where Id=?";
+        $query = "DELETE FROM `system` Where Id=?";
         $obj = $this->conn->prepare($query);
         $obj->bind_param("s",  $this->system_id);
         if($obj->execute()){
@@ -1866,7 +1866,7 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
 
     }
     public function getSystemProduct(){
-        $products_query=("Select * from system where  Status=1 AND ShopType=? ORDER BY Created DESC LIMIT? OFFSET?");
+        $products_query=("Select * from `system` where  Status=1 AND ShopType=? ORDER BY Created DESC LIMIT? OFFSET?");
         $products_query_obj = $this->conn->prepare($products_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -1882,7 +1882,7 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
 
     }
     public function getAdminSystemProduct(){
-        $products_query=("Select * from system where  ShopType=? ORDER BY Created DESC LIMIT? OFFSET?");
+        $products_query=("SELECT * FROM `system` where  ShopType=? ORDER BY Created DESC LIMIT? OFFSET?");
         $products_query_obj = $this->conn->prepare($products_query);
         $page=$this->page-1;
         $offset_page=$this->limit*$page;
@@ -2044,7 +2044,7 @@ HAVING distance < 25 ORDER BY distance  LIMIT ? OFFSET ?
         }
     }
     public function getSystemProductSearch(){
-        $products_query=("Select * from system where ShopType=? AND ItemName LIKE ?");
+        $products_query=("Select * from `system` where ShopType=? AND ItemName LIKE ?");
         $products_query_obj = $this->conn->prepare($products_query);
         $products_query_obj->bind_param("ss",$this->type,$this->search);
         $units=array();
